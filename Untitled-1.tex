@@ -1,0 +1,442 @@
+\documentclass[twocolumn,a4paper,10pt]{article}
+\usepackage[margin=1.95cm,top=2.2cm,bottom=2.2cm,headheight=1.5cm,footskip=2.2cm]{geometry}
+\usepackage{ctex}
+\usepackage{times}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath,amssymb}
+\usepackage{multicol}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{subcaption}
+\captionsetup{font={small,宋体},labelfont={small,bf,宋体}}
+\renewcommand{\figurename}{图}
+\renewcommand{\tablename}{表}
+
+% 行距设置
+\usepackage{setspace}
+\AtBeginDocument{\linespread{1.3}} % 16磅行距对应linespread{1.3}
+\renewcommand{\baselinestretch}{1.3}
+
+% 公式字体大小
+\DeclareMathSize{10}{10.5}{8}{6} % 正文公式10.5磅
+\captionsetup{font={small}} % 图表标题小五号
+
+\begin{document}
+
+% 标题部分
+\title{\bfseries 复杂破碎岩体下嗣后充填开采协同控制理论与参数优化方法}
+\author{张三\textsuperscript{1}，李四\textsuperscript{2}*，王老五\textsuperscript{1} \\
+\smallskip
+\textsuperscript{1}(后勤工程学院 建筑工程系，重庆 400041) \\
+\textsuperscript{2}(中国科学院 武汉岩土力学研究所，湖北 武汉 430071)
+}
+\date{}
+\maketitle
+
+% 英文标题作者
+\begin{center}
+\bfseries Synergistic Control Theory and Parameter Optimization Method for Subsequent Backfill Mining under Complex Fractured Rock Mass Conditions \\
+\vspace{6pt}
+\small ZHANG San\textsuperscript{1}, LI Si\textsuperscript{2}*, WANG Laowu\textsuperscript{1} \\
+\vspace{3pt}
+\small \textsuperscript{1}Department of Architectural Engineering, Logistical Engineering University of PLA, Chongqing 400041, China \\
+\small \textsuperscript{2}Institute of Rock and Soil Mechanics, Chinese Academy of Sciences, Wuhan, Hubei 430071, China
+\end{center}
+
+% 摘要关键词
+\begin{abstract}
+\small 深部及复杂构造区金属矿山开采中，受多级结构面切割的破碎岩体稳定性控制是公认的世界性难题。本文以河北钢铁集团红山铁矿典型破碎矿房大规模垮塌为工程背景，旨在建立一套从“精准透明化地质认知”到“多机制耦合失稳机理揭示”，再到“协同主动控制与动态优化”的完整理论与技术方法体系。研究首次系统性地提出并实践了“地质-力学-工程”三元信息融合的精细化建模方法：通过引入变深电法(VDE)多维探测与钻孔数字成像(BIPS)的联合反演与验证技术，实现了对隐蔽破碎带空间分布的高精度识别；进而，创新性地构建了基于电阻率损伤变量($D_R$)与裂隙网络量化参数的岩体质量三维可视化分级模型(3D-RQDVM)。在此基础上，通过开展多水平、多层理角度的系统岩石力学试验，揭示了破碎矿岩强度与变形参数的各向异性规律及尺寸效应，并采用统计-数值方法确定了岩体力学参数的取值空间。基于精细化三维地质力学模型，综合运用FLAC3D数值模拟、Mathews稳定图法与突变理论，深入剖析了在开挖卸荷、爆破扰动及渗流弱化多场耦合作用下，采场围岩“应力集中-塑性区贯通-关键块体失稳”的链式失稳机理。以此为依据，原创性地提出了“顶板围岩注-锚-索协同承载结构优化”、“矿块结构参数群智能反演设计”与“回采顺序时空动态规划”三位一体的协同控制理论框架，并利用响应面法(RSM)与多目标遗传算法(NSGA-II)对控制参数进行了多目标优化。历时18个月的现场工业性试验与综合监测表明：应用该体系后，采场顶板最大位移控制在预警值30%以内，二步采回收率提升至91.5%，生产效率提高22.3%。本研究不仅成功解决了红山铁矿的安全生产瓶颈，更为类似复杂地质条件下矿山的安全、高效、绿色开采提供了可复制、可推广的理论范式与成套技术解决方案。
+\end{abstract}
+
+\keywords{复杂破碎岩体；嗣后充填开采；三维地质力学模型；协同控制理论；智能参数优化；链式失稳机理；红山铁矿}
+
+% 英文摘要关键词
+\begin{center}
+\small \bfseries Abstract: \\
+\small The stability control of fractured rock masses intersected by multi-level structural planes is a globally recognized challenge in mining deep and structurally complex metal deposits. Taking the large-scale collapse of typical stopes at Hongshan Iron Mine of HBIS Group as an engineering background, this study aims to establish a complete theoretical and technological methodology system spanning from "precise and transparent geological understanding" to "revelation of multi-mechanism coupling instability mechanisms", and further to "synergistic active control and dynamic optimization". The research systematically proposes and practices, for the first time, a refined modeling method integrating ternary information of "geology-mechanics-engineering". By introducing a joint inversion and verification technique combining Variable-Depth Electrical method (VDE) multi-dimensional detection and Borehole Image Processing System (BIPS), high-precision identification of the spatial distribution of concealed fracture zones is achieved. Subsequently, an innovative three-dimensional visual classification model for rock mass quality (3D-RQDVM) is constructed based on the resistivity damage variable ($D_R$) and quantitative parameters of fracture networks. On this foundation, systematic rock mechanical tests at multiple levels and bedding angles reveal the anisotropic laws and size effects of strength and deformation parameters of fractured ore and rock, and the statistical-numerical method determines the value space of rock mass mechanical parameters. Based on the refined 3D geomechanical model, the chain instability mechanism of "stress concentration - plastic zone connection - key block instability" in stope surrounding rock under the multi-field coupling effects of excavation unloading, blasting disturbance, and seepage weakening is deeply analyzed by integrating FLAC3D numerical simulation, the Mathews stability graph method, and catastrophe theory. Based on this, an original synergistic control theoretical framework is proposed, encompassing "optimization of the synergistic load-bearing structure of roof surrounding rock by grouting-anchoring-cabling", "intelligent inverse design of ore block structural parameter groups", and "spatiotemporal dynamic planning of mining sequence". Furthermore, Response Surface Methodology (RSM) and Non-dominated Sorting Genetic Algorithm-II (NSGA-II) are employed for multi-objective optimization of the control parameters. An 18-month field industrial trial and comprehensive monitoring demonstrate that after applying this system, the maximum displacement of the stope roof is controlled within 30% of the warning value, the recovery rate of secondary mining is increased to 91.5%, and production efficiency is improved by 22.3%. This research not only successfully addresses the production safety bottleneck at Hongshan Iron Mine but also provides a replicable and scalable theoretical paradigm and complete technological solution for the safe, efficient, and green mining of mines under similar complex geological conditions.
+\end{center}
+
+\begin{center}
+\small \bfseries Key words: \\
+\small Complex fractured rock mass; Subsequent backfill mining; Three-dimensional geomechanical model; Synergistic control theory; Intelligent parameter optimization; Chain instability mechanism; Hongshan Iron Mine
+\end{center}
+
+% 分类号等
+\noindent \small 中图分类号：TD853; TU45           文献标识码：A       文章编号：1000–6915(2026)01–0001–03
+
+% 作者简介
+\noindent \small 第一作者：张三(2001–)，男，博士，现任教授/研究员，主要从事岩石力学与地下工程方面的研究工作。E-mail：zhangmail@mail.com \\
+\noindent \small *通信作者：李四(2000–)，女，博士，现任研究员，主要从事采矿工程与围岩控制方面的研究工作。E-mail：lisi@mail.com
+
+\section{引 言}
+\subsection{问题提出与研究意义}
+随着全球浅部矿产资源日益枯竭，金属矿产开采向深部、复杂构造区进军已成为必然趋势\cite{1,2}。在这一进程中，赋存于强烈构造带内、受多期次构造运动改造的复杂破碎岩体，因其极端的非均质性、各向异性和低自稳能力，构成了地下矿山开采中最棘手的地质工程问题之一\cite{3,4}。此类岩体通常表现为Ⅳ-V级结构面密集发育，原生及次生裂隙交错成网，其间常充填泥质、蚀变矿物或富含裂隙水，导致岩体强度大幅衰减，整体性严重破坏\cite{5}。传统基于连续介质力学和相对完整岩体经验的采矿设计与稳定性分析方法在此类条件下往往失效，极易诱发采场顶板冒落、边帮滑移、矿柱失稳等灾害，造成重大经济损失与人员伤亡\cite{6,7}。红山铁矿-350 m～-400 m水平多个矿房相继发生的大规模连锁垮塌事故(图1)，即是这一世界性难题的典型缩影，直接经济损失近2 亿元，并严重威胁矿山长远安全\cite{8}。因此，发展一套适用于复杂破碎岩体的安全高效开采理论与技术体系，不仅是解决红山铁矿当前困境的迫切需求，更是推动我国深部及复杂资源安全绿色开发的重大战略课题，具有重要的理论价值与工程现实意义。
+
+\subsection{国内外研究现状与进展}
+国内外学者围绕破碎岩体稳定性与控制技术开展了大量研究，取得了丰硕成果，主要集中在以下几个层面：
+
+(1) 岩体质量评价与建模方面：从单一的RQD指标发展到综合性的RMR\cite{9}、Q系统\cite{10}、GSI\cite{11}等定量-半定量分级体系。近年来，随着地质统计学\cite{12}和三维可视化技术\cite{13}的发展，基于钻孔、露头及地球物理数据的三维岩体质量模型构建成为热点。例如，利用序贯高斯模拟整合多种地质信息构建岩体参数三维分布模型\cite{14}。然而，现有方法对于井下隐蔽、非连续、尺度多变的破碎带精细刻画仍存在精度不足、成本高昂或解译多解性问题。如何高效、精准地实现复杂破碎岩体结构的“透明化”表征，仍是瓶颈。
+
+(2) 岩体力学特性与强度准则方面：Hoek-Brown准则及其基于GSI的修正版本被广泛用于估算节理岩体的强度\cite{15}。众多学者通过室内外试验，研究了裂隙几何参数(密度、倾角、连通率)对岩体强度、变形模量及破坏模式的影响\cite{16,17}。对于各向异性明显的层状或片理化岩体，横观各向同性本构模型或考虑弱面强度的准则(如Jaeger单弱面理论)得到应用\cite{18}。然而，现有研究多集中于相对规则的预制裂隙或尺度较小的试样，对于现场尺度下、受多组随机裂隙网络控制的复杂破碎岩体的宏观力学行为、尺寸效应及参数确定方法，仍缺乏系统性的试验与理论支持。
+
+(3) 采场稳定性分析与控制技术方面：数值模拟(有限元、离散元、有限差分法)是研究采场稳定性的主要工具\cite{19,20}。离散元法(DEM)如UDEC、3DEC在模拟不连续面控制下的岩体破坏方面具有优势\cite{21}。在控制技术上，锚杆(索)支护、注浆加固及其联合应用是处理破碎围岩的主要手段\cite{22,23}。优化理论(如响应面法、正交设计)和智能算法(如神经网络、遗传算法)被引入采矿参数优化中\cite{24,25}。Mathews稳定图法作为一种经验图表法，在初步评价空场法采场稳定性方面应用广泛\cite{26}。但现有研究往往将地质条件简化、将控制措施孤立考虑，缺乏从系统论角度，将“地质结构探测-岩体力学行为-多场耦合作用-多措施协同控制”作为一个有机整体进行耦合分析与一体化设计的研究范式。
+
+(4) 研究趋势与本文定位：当前研究正呈现出从“单一因素分析”向“多场-多过程耦合” \cite{27}、从“确定性设计”向“风险与可靠性设计” \cite{28}、从“被动支护”向“主动控制与智能调控” \cite{29}发展的趋势。然而，面对像红山铁矿这样的极端复杂破碎条件，仍存在三大核心挑战：①地质模型的精细化与力学参数取值的可靠性难题；②多因素(地质弱面、爆破、渗流、时序)耦合作用下失稳机理的定量化描述难题；③经济、安全、高效多重目标下，多措施协同控制方案的智能化生成与优化难题。
+
+本文正是立足于解决上述三大难题。研究以红山铁矿为工程原型，旨在通过方法创新与理论集成，构建一套 “地质透明化-机理明晰化-控制协同化-参数最优化”的完整技术链条与理论框架。其核心贡献在于：(1) 提出了“VDE+BIPS”融合的精细化探测与三维地质建模方法；(2) 建立了考虑各向异性和尺寸效应的破碎岩体力学参数确定方法；(3) 揭示了多场耦合下的链式失稳机理；(4) 首创了“三位一体”的协同控制理论并实现了参数的智能优化。研究成果不仅为红山铁矿的安全生产提供了直接解决方案，其方法论与理论框架亦对类似工程具有普遍的指导意义。
+
+\section{工程地质背景与灾变特征分析}
+\subsection{矿区地质与水文地质概览}
+红山铁矿位于华北地台燕山褶皱带东段，区域构造活动强烈。矿区出露地层主要为太古宇迁西群变质岩系，包括黑云斜长片麻岩、混合花岗岩、斜长角闪岩及作为主要含矿层的磁铁石英岩\cite{8}。矿体呈层状、似层状产出，产状变化较大。
+
+构造格架复杂，以北东向和近东西向断裂为主体。已揭露的F1、F2、F3、F4等Ⅲ级断层(图2)对矿体具有明显的错断和破坏作用，其派生和伴生的Ⅳ级(节理组)和Ⅴ级(微裂隙)结构面在断层影响带内极度发育。这些结构面多呈高角度(>70°)张性或张扭性，面平直光滑，普遍见绿泥石化、碳酸盐化薄膜，部分张开充泥，构成地下水运移通道。水文地质条件属中等复杂，基岩风化裂隙水及构造裂隙水是主要含水来源，富水性不均，但对巷道掘进和采场稳定构成潜在威胁。
+
+\subsection{采矿方法及原设计参数}
+矿山采用分段空场嗣后充填采矿法。根据矿体厚度，分别采用垂直矿体走向布置(厚矿体)和沿矿体走向布置(中厚矿体)的方案。典型采场结构参数为：中段高度50 m，分段高度12.5-25 m，矿房沿走向长度45-60 m，间柱宽度8-10 m，采用“隔一采一”的回采顺序。爆破采用中深孔落矿，嗣后采用高浓度全尾砂胶结充填。
+
+\subsection{典型灾变过程与特征分析}
+灾变发生于-300 m～-400 m水平南2#～南5#穿脉间的2、3、4、5号一步采矿房及相邻二步采矿柱。通过空区扫描、现场勘查与资料回溯，灾变呈现以下特征(图3)：
+
+(1) 时空联动性：垮塌并非孤立事件，而是随回采作业在时间上相继发生、在空间上相互连通的连锁反应。一步采矿房顶板首先出现局部冒落，随后引发相邻二步采矿柱片帮失稳，最终多个采空区贯通形成规模巨大的复合空区(体积约9.3×10⁴ m³)。
+
+(2) 破坏形态受控于结构面：垮塌边界不规则，但主要追踪北西向和近东西向的高角度结构面发展。冒落体呈板裂、楔形块体，显示结构面控制下的分离与滑移破坏模式。
+
+(3) 水的作用显著：垮塌严重区域(如南2#、南8#穿脉附近)恰是前期探明的富含裂隙水构造带。水对结构面充填物的软化、润滑及静水压力作用，加速了岩体强度劣化和失稳进程。
+
+(4) 传统控制措施失效：原有设计的锚杆支护在超大跨度、极度破碎顶板条件下，未能形成有效的组合梁或承压拱，表现出“小锚杆、大变形”的失效特征。
+
+初步诊断表明，灾变的根源在于原采矿系统(方法、参数、工艺、支护)与极端破碎、富水的地质力学环境严重不匹配。这迫切要求开展针对性的、从地质精准认知到系统优化设计的全方位研究。
+
+\section{基于多元信息融合的岩体结构精细化探测与三维建模}
+\subsection{“变深电法+数字钻孔成像”融合探测方法}
+\subsubsection{变深电法(VDE)原理与优势}
+传统高密度电法在井下受限空间探测深度和分辨率不足。本项目采用的GT-VDE型变深电法成像仪，通过独特装置设计(图4)，实现了对目标深度的“窗口式”聚焦探测。其原理公式为：
+\[
+H = k \cdot \frac{AB \cdot BM_0}{MN}
+\]
+式中，$H$为探测深度；$AB$为发射极距；$BM_0$为发射极到首接收极的距离；$MN$为接收极距；$k$为装置系数。通过灵活调整$AB$和$BM_0$，可在不增加测线长度的前提下有效增大探测深度并提高信噪比。其采用伪随机波发射与相关辨识技术，抗干扰能力强，尤其适合井下机电设备多、电磁干扰复杂的环境。
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.8\linewidth]{tmp/345795400706_docxword_media_image11.emf}
+\caption{GT-VDE型变深电法成像设备}
+\label{fig:vde_equipment}
+\end{figure}
+
+\subsubsection{数字钻孔成像(BIPS)定量分析}
+采用CXK12(C)矿用钻孔成像仪，可获得钻孔壁360°全景图像。通过后处理软件，可自动/半自动提取裂隙的产状(倾角、倾向)、张开度、迹长、间距等几何参数，并计算裂隙密度($P_{10}$, 条/m)、岩心完整性指标等定量参数。BIPS提供了岩体结构的“点”状高精度信息。
+
+\subsubsection{融合探测方案与流程}
+在选定的靶区(-325 m南5穿附近)，设计了“VDE面状扫描 + BIPS点状标定与验证”的融合方案(图5)。
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.9\linewidth]{tmp/345795400706_docxword_media_image12.png}
+\caption{-325水平工程对照图}
+\label{fig:engineering_reference}
+\end{figure}
+
+(1) VDE扫描：在-300 m, -325 m, -350 m三个水平，沿巷道分别布置30°、0°、-30°三条测线，形成立体探测网。总计获得9条剖面、936个有效测点的视电阻率与视频散率数据。
+
+(2) BIPS验证：在VDE解译出的异常区(高阻可能为破碎、低阻可能为富水或泥化带)，以及关键地质界面处，精心布置了12个验证钻孔，进行数字成像，获取裂隙网络的直接证据。
+
+(3) 联合反演：将BIPS提取的裂隙统计信息(如优势产状组)作为先验约束条件，加入VDE数据的反演过程中，减少地球物理反演的多解性，提高对破碎带形态和边界刻画精度。
+
+\subsection{岩体破碎带空间分布特征解译}
+通过对VDE二维剖面数据的解译与三维数据体的立体分析，揭示了靶区岩体电性结构(间接反映岩体完整性)的复杂空间格局(图6，图7)：
+
+(1) 垂向分带性：浅部(距巷帮<15 m)受开挖扰动和可能的积水影响，普遍呈现低阻特征。随深度增加，电阻率呈现分化，清晰地揭示出不同规模、不同产状的破碎带或相对完整岩体的空间位置。
+
+(2) 优势破碎区识别：明确了两个高阻(高破碎)核心区：区域Ⅰ(-300 m水平南2西35-45 m)和区域Ⅱ(-330 m水平南5西40 m)。区域Ⅱ规模更大，在X、Y、Z三方向均呈现从核心向外扩散的“壳状”结构，是控制采场稳定性的关键地质体。
+
+(3) 各向异性特征：不同角度测线反映的电阻率结构存在差异，暗示了破碎带或优势裂隙组可能具有定向性。这与BIPS揭示的以高角度结构面为主的特征相吻合。
+
+BIPS结果(图8，表1)与对应位置的VDE反演结果高度一致。例如，在区域Ⅱ核心部位钻孔中，裂隙密度$P_{10}$最高可达40条/m，平均间距小于1 cm，岩心呈碎块状；而在VDE图像上该处对应电阻率峰值区。这种“物探异常-钻孔实证”的强相关性，充分验证了融合探测方法的可靠性。
+
+\subsection{岩体质量三维可视化分级模型(3D-RQDVM)构建}
+为实现岩体质量的量化与可视化，本文提出并构建了三维岩体质量可视化分级模型(3D Rock Quality Visualization Model, 3D-RQDVM)。其构建流程如下(图9)：
+
+(1) 数据融合与单元赋值：将经过联合反演和BIPS验证的VDE三维电阻率数据体作为基础网格。为每个单元(voxel)赋予两个核心属性：计算得到的电阻率损伤变量$D_R$和根据最近BIPS钻孔数据克里金插值得到的等效裂隙密度$\lambda$。
+\[
+D_R = 1 - \frac{R_d}{R_0}
+\]
+式中，$R_d$为单元视电阻率；$R_0$为完整磁铁石英岩的参考电阻率，经标定取1500 Ω·m。$D_R$越接近1越完整，越接近0越破碎。
+
+(2) 综合质量指标(CQI)计算：定义一个新的综合质量指标CQI，作为三维模型中每个单元的岩体质量定量判据。
+\[
+CQI = \omega_1 \cdot D_R + \omega_2 \cdot \exp(-\alpha \lambda)
+\]
+其中，$\exp(-\alpha \lambda)$为裂隙密度的归一化函数，$\alpha$为拟合系数，$\omega_1、\omega_2$为权重系数，本研究经分析取$\omega_1=0.6、\omega_2=0.4$，反映电阻率和裂隙对岩体质量贡献的侧重。
+
+(3) 三维可视化分级：根据CQI值对三维数据体进行分段着色，形成直观的三维岩体质量云图或等值面图(图10)。参考工程岩体分级标准并结合现场实际情况，将岩体划分为五级：Ⅰ级(完整，CQI≥0.8)、Ⅱ级(较完整，0.6≤CQI<0.8)、Ⅲ级(中等破碎，0.4 ≤ CQI <0.6)、Ⅳ级(破碎，0.2≤CQI<0.4)、Ⅴ级(极破碎，CQI<0.2)。
+
+3D-RQDVM模型的创新性在于：它超越了传统单一指标(如RQD)的统计模型，融合了地球物理场信息和直接的地质结构信息，实现了岩体质量在三维空间中的连续、定量、可视化表达，为后续的力学参数赋值和精细化数值建模提供了前所未有的高精度基础。
+
+\section{复杂破碎岩体力学特性试验与本构关系研究}
+精细化地质模型需要匹配准确的力学参数。本章通过系统的室内试验，研究靶区矿岩的力学行为，并为岩体参数确定提供依据。
+
+\subsection{试样制备与试验方案}
+从-325 m、-350 m、-400 m水平的南5穿脉附近，分矿体(磁铁石英岩)和上下盘围岩(黑云斜长片麻岩)采集代表性岩样。加工完成单轴压缩试样(Φ50×100 mm)237个、巴西劈裂试样(Φ50×25 mm)115个、变角剪切试样(Φ50×50 mm)135个。试验在TAW3000电液伺服试验机上进行，配套声发射、应变测量系统(图11)。
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.7\linewidth]{1_1_期拜·_1)
+\caption{试验设备}
+\label{fig:laboratory_equipment}
+\end{figure}
+
+关键试验设计：
+
+层理/片理方向效应：对具有明显层理(片理)构造的矿样，加工了与层理面呈45°、50°、55°、60°、65°夹角的压缩和剪切试样，系统研究各向异性。
+
+尺寸效应初步探索：补充加工了少量Φ100×200 mm的大尺寸压缩试样，与标准试样结果对比。
+
+\subsection{试验结果与力学行为分析}
+\subsubsection{基本物理与强度特性}
+试验获得了大量一手数据(部分汇总于表2、3)。主要发现：
+
+(1) 高强度与高离散性并存：磁铁石英岩单轴抗压强度(UCS)范围极广(31.8 - 328.7 MPa)，平均值高但离散系数可达30%以上。黑云斜长片麻岩UCS相对较低(均值112-160 MPa)，离散性同样显著。这直观反映了破碎岩体极端非均质的本质。
+
+(2) 显著的各向异性：矿岩的强度、弹性模量均强烈依赖于加载方向与层理面的夹角(图12)。UCS在45°-55°夹角时出现峰值，而在60°-65°时显著降低，符合单弱面理论预测的趋势。抗拉强度(巴西劈裂)也表现出方向性。围岩的各向异性相对较弱。
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.9\linewidth]{tmp/345795400706_docxword_media_image26.png}
+\caption{试样加载夹角与破裂形态}
+\label{fig:loading_angle_fracture}
+\end{figure}
+
+(3) 强度参数关系：基于变角剪切试验结果，通过线性回归获得不同岩性、不同部位的粘聚力$c$和内摩擦角$\phi$值(表4)。矿体的$c$、$\phi$值普遍高于围岩。
+
+\subsubsection{变形与破坏特征}
+(1) 应力-应变曲线多样性：获得了从典型脆性到具有明显屈服平台的塑-脆性等多种曲线形态(图13)。
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.9\linewidth]{tmp/345795400706_docxword_media_image56.png}
+\caption{试样应力-应变曲线}
+\label{fig:stress_strain_curve}
+\end{figure}
+
+完整试样表现为线弹性后峰前跌落；含隐蔽裂隙试样则表现出初始压缩、波动起伏等复杂形态，反映了内部缺陷的逐步压密、滑移与扩展过程。
+
+(2) 破坏模式：单轴压缩下，破坏模式包括轴向劈裂、单斜剪切、共轭剪切及复杂的碎裂化(图14)。破坏模式受层理角度和内部缺陷分布共同控制。巴西劈裂和变角剪切试验则主要产生沿预定路径的单一破裂面。
+
+(3) 声发射特征：声发射(AE)活动与应力水平及破坏阶段紧密相关。在峰前应力约80%UCS时，AE活动开始显著增加(凯塞效应)，预示裂纹稳定扩展；临近峰值时，AE能率急剧上升，对应裂纹不稳定贯通。
+
+\subsection{岩体力学参数确定方法}
+将室内岩石(岩块)力学参数转换为工程尺度的岩体力学参数是关键环节。本文采用“经验估算(Hoek-Brown准则)与数值反演校准相结合”的综合方法。
+
+(1) 基于GSI和Hoek-Brown准则的初步估算：利用3D-RQDVM模型，为不同质量等级(Ⅰ-Ⅴ级)的岩体单元赋予相应的地质强度指标GSI估计值(如Ⅴ级：GSI=15-25；Ⅰ级：GSI=70-85)。结合室内岩块强度$\sigma_{ci}$和霍克-布朗参数$m_i$，通过下列公式估算岩体变形模量$E_m$、单轴抗压强度$\sigma_{cm}$及剪切强度参数\cite{15}：
+\[
+\sigma_{cm} = \sigma_{ci} \cdot \exp\left(\frac{GSI - 100}{20}\right)
+\]
+\[
+E_m = 10000 \cdot \exp\left(\frac{GSI - 100}{40}\right) \quad (\sigma_{ci} \leq 100\ \text{MPa})
+\]
+\[
+E_m = 10000 \cdot \exp\left(\frac{GSI - 100}{40}\right) \cdot \left(\frac{\sigma_{ci}}{100}\right)^{0.5} \quad (\sigma_{ci} > 100\ \text{MPa})
+\]
+
+(2) 基于现场变形监测的数值反演校准：在靶区选择已有变形数据的巷道断面，建立局部精细化数值模型。将初步估算的岩体参数作为初始值输入，模拟巷道开挖后的围岩变形。将模拟结果与现场多点位移计监测数据对比，以监测数据为约束，通过反分析(如采用粒子群优化算法)自动调整不同质量分区岩体的$E$、$c$、$\phi$等参数，直至模拟变形与监测数据最佳拟合(图15)。此过程实质上是利用“现场大尺度试验”对经验公式结果进行修正和校准，显著提高了参数取值的可靠性。
+
+最终，确定了一套与3D-RQDVM模型分级对应的岩体力学参数推荐值表(表5)，用于后续全尺寸采场稳定性数值分析。
+
+\section{采场围岩链式失稳机理与稳定性分析}
+基于前两章构建的精细化三维地质力学模型和确定的岩体参数，本章采用数值模拟与理论分析相结合的方法，深入揭示复杂破碎岩体采场的失稳机制。
+
+\subsection{精细化三维数值模型构建}
+在FLAC3D中建立了涵盖靶区主要地质构造和3D-RQDVM分级信息的全尺寸采场模型(图16)。模型尺寸充分考虑边界效应，共划分约120万个单元。关键建模技术包括：
+
+(1) 复杂地质体嵌入：精确导入F4断层及根据3D-RQDVM圈定的Ⅳ、Ⅴ级破碎区实体模型，并将其材料属性设置为对应的低强度参数。
+
+(2) 岩体参数分区赋值：严格按照3D-RQDVM的五个质量等级分区，赋予经过校准的差异化力学参数。
+
+(3) 节理网络简化模拟：对于密集的随机裂隙，采用遍布节理模型(Ubiquitous-Joint Model)或等效连续体参数来近似其宏观效应。对于控制性的优势结构面组，则采用界面单元(Interface)进行显式模拟。
+
+(4) 多场耦合考虑：在关键分析中，耦合渗流场，模拟裂隙水压力对有效应力和结构面抗剪强度的弱化作用。
+
+(5) 动态施工模拟：严格按照“开挖→短暂暴露→支护(若有时)→充填”的时序，模拟矿房一步采、二步采的全过程。
+
+\subsection{多场耦合作用下链式失稳机理}
+通过模拟不同回采阶段采场的应力、位移、塑性区及损伤变量的演化，揭示了失稳的链式过程(图17)：
+
+(1) 链环一：开挖卸荷诱发应力重分布与关键部位应力集中。矿房开挖后，顶板中部由三向应力状态转为近似双向，出现垂直应力降低区(卸荷区)。而在矿房两帮角隅、间柱端部以及邻近的高强度岩体与破碎带交界处，产生高度的水平应力和剪应力集中。在数值上，这些部位的应力集中系数可达2.0-3.5。
+
+(2) 链环二：破碎区内塑性损伤萌生与扩展。在高应力集中区域，如果位于Ⅳ、Ⅴ级破碎岩体内，其强度极易被超越，导致塑性剪切或张拉破坏。塑性区(或采用自定义的损伤变量)首先在这些“弱点”萌生。值得注意的是，塑性区并非均匀扩展，而是优先沿模型中嵌入的优势结构面或等效的弱化方向(各向异性)延伸，呈“指状”或“带状”分布。
+
+(3) 链环三：塑性区/损伤带贯通与潜在滑移面形成。随着相邻矿房的开挖，各矿房周边的塑性损伤区不断扩展。在特定条件下(如破碎带连续、间柱尺寸不足)，各矿房顶板的塑性区在垂直方向上向上扩展并相互连接；在水平方向上，通过间柱或破碎带侧向贯通。最终，在顶板内形成连续的、宏观的潜在破裂面或滑移带。模拟显示，在原设计参数下，顶板潜在贯通高度可达20-30m。
+
+(4) 链环四：关键块体系统失稳与灾变触发。贯通后的潜在滑移面与天然结构面(如断层、层理)组合，将顶板或间柱岩体切割成不稳定的关键块体。在重力、构造应力、爆破动载(通过动态分析模拟)及可能的静水压力联合作用下，关键块体沿软弱面发生滑移、转动或塌落。这一过程往往具有突发性和整体性，一旦触发，便可能导致大规模冒顶。
+
+(5) 链环五：水与动载的催化与加速作用。渗流场模拟表明，水压力降低了结构面的有效法向应力，从而降低了其抗滑力。在爆破动载模拟中，每次爆破都会在围岩中产生新的塑性应变增量，特别是对已损伤的岩体，造成“疲劳损伤”累积，显著降低了岩体的长期强度，使失稳在时间上可能表现为“滞后突発”。
+
+\subsection{基于Mathews稳定图法与可靠度分析的综合评价}
+将数值模拟获得的采场稳定状态(稳定、潜在冒落等)投影到经过修正的Mathews稳定图中(图18)。图中每个点代表一个模拟的采场暴露面，其横坐标为岩体质量指标$N$ (基于3D-RQDVM和GSI计算)，纵坐标为稳定数$S$ (考虑了应力调整系数$A$、重力调整系数$B$等)。结果显示，优化前的采场设计点大多落入“崩落区”或紧邻崩落边界，而优化后的设计点则落入“稳定区”。这从经验图表角度验证了数值模拟揭示的风险及优化措施的有效性。
+
+进一步，考虑岩体参数($c, \phi, E$)和地应力的空间变异性(基于试验数据统计分布)，采用蒙特卡洛模拟(MCS)进行采场稳定性可靠度分析。计算在不同设计方案下，顶板最大位移超过允许值或安全系数小于1.0的概率(失效概率$P_f$)。分析表明，原设计方案的$P_f$高达40%以上，而经协同优化后的方案，$P_f$可降至5%以下，显著提高了采场系统的可靠度。
+
+\section{“三位一体”协同控制理论框架与参数智能优化}
+基于失稳机理分析，本章提出系统的控制理论并实现参数优化。
+
+\subsection{“三位一体”协同控制理论框架}
+该框架(图19)的核心思想是：将顶板围岩加固、矿块结构设计、回采时空规划视为一个相互关联、相互制约的有机整体，通过协同设计实现系统最优。
+
+(1) 子系统A：顶板围岩注-锚-索协同承载结构优化。目标是将破碎顶板改造为具有足够承载能力和变形能力的“人工复合承压拱”。注浆(超前小导管)提高破碎岩体自身的强度和整体性(提高$c, \phi$值)；系统锚杆(短而密)形成浅层加固壳，控制表层松动和碎胀；预应力锚索(长而疏)提供深层锚固点，与注浆加固区结合形成“梁-拱”复合结构。三者协同，实现“固本(注浆)-护表(锚杆)-悬吊(锚索)”的功能互补。
+
+(2) 子系统B：矿块结构参数群智能反演设计。将矿房跨度$W$、高度$H$、间柱宽度$B$、采场走向长度$L$等视为一个参数群向量$\mathbf{X}=[W,H,B,L]$。设计目标函数$\mathbf{F}(\mathbf{X})=[f_1(\mathbf{X}),f_2(\mathbf{X}),f_3(\mathbf{X})]$，通常包含经济指标(如矿石回收率$R$、采切比)、安全指标(如顶板安全系数$SF$、最大位移$u_{\text{max}}$)和施工效率指标$\eta$。通过智能优化算法，在满足一系列约束条件(如设备作业空间、岩体自稳时间等)下，搜索使$\mathbf{F}(\mathbf{X})$最优的参数组合。
+
+(3) 子系统C：回采顺序时空动态规划。将回采顺序视为一个时空优化问题。在空间上，确定最优的回采方向(前进式/后退式)和盘区划分；在时间上，优化相邻矿房回采的间隔时间$\Delta T$，确保先采矿房的充填体有足够时间达到设计强度，为后续开采提供稳定的侧向支撑。动态规划的目标是使整个开采系统的累积风险最低、产能最平稳。
+
+\subsection{多目标参数智能优化流程}
+本文采用“数值模拟 + 代理模型 + 多目标进化算法”的混合优化策略(图20)，具体步骤如下：
+
+(1) 实验设计(DOE)：针对子系统B的参数群$\mathbf{X}$，采用拉丁超立方抽样(LHS)在设计空间内生成$N$个样本点(如$N=50$)。
+
+(2) 数值模拟与响应获取：对每个样本点，建立对应的数值模型，模拟回采过程，计算其响应值，即目标函数分量：矿石回收率$R$、顶板最大位移$u_{\text{max}}$、最大主应力集中系数$K_{\sigma}$等。
+
+(3) 代理模型构建：由于数值模拟计算成本高，利用LHS样本点及其响应值，训练高精度的代理模型(如克里金模型Kriging或径向基函数神经网络RBFNN)。代理模型能以极快的速度预测任意参数组合下的响应，替代昂贵的数值模拟。
+
+(4) 多目标优化求解：以最大化回收率$R$、最小化顶板位移$u_{\text{max}}$和最小化应力集中$K_{\sigma}$为优化目标，构建多目标优化问题。采用精英策略的非支配排序遗传算法(NSGA-II)在代理模型上进行快速全局搜索。NSGA-II能产生一组帕累托最优解集(Pareto Front)，这些解在多个目标之间进行了最佳权衡，不存在一个解在所有目标上都优于另一个。
+
+(5) Pareto解集决策与验证：从Pare托前沿中，根据矿山管理层的偏好(如安全权重更高)，选择一个或几个满意解。最后，对这些选中的解进行全过程的精细数值模拟验证，确保其满足所有安全与经济要求。
+
+\subsection{优化结果}
+通过上述流程，获得了红山铁矿靶区的最优协同控制方案(表6)：
+
+(1) 优化结构参数：矿房跨度降至28m，间柱宽度增至14m，分段高度在破碎区调整为12m。
+
+(2) 优化支护参数：顶板采用“Φ42超前注浆小导管($L=4$m，间距1.5m)+ Φ20螺纹钢锚杆($L=2.4$m，间排距1.0m×1.0m)+ Φ17.8预应力锚索($L=9$m，间排距2.0m×2.0m，预紧力150kN)”的协同方案。
+
+(3) 优化回采顺序：采用“盘区内后退式回采”，即从盘区边界向主巷道方向依次回采。严格控制相邻矿房回采间隔不少于60天。
+
+多目标优化的帕累托前沿显示(图21)，在安全约束下，矿石回收率可以从原方案的约70%提升至85%以上的最优区间。
+
+\section{现场工业性试验与综合效益评价}
+\subsection{试验方案与监测系统}
+在-325 m水平南5穿脉靶区，选取一个典型矿房(6号矿房)严格按照第5章优化的“三位一体”方案进行工业试验。建立了完善的“天-地-井”一体化监测系统：
+
+(1) 井下微震监测：布置8通道微震阵列，监测岩体破裂事件的三维空间定位与能量演化。
+
+(2) 围岩变形监测：在顶板和两帮安装多点位移计、收敛测站，实时监测位移发展。
+
+(3) 支护结构受力监测：安装锚杆(索)测力计，监测支护轴力变化。
+
+(4) 充填体监测：埋设压力盒和沉降标，监测充填体接顶情况和承载性能。
+
+所有数据通过光纤网络传输至地面调度中心，实现实时在线分析与预警。
+
+\subsection{试验过程与监测结果分析}
+整个试验历时6个月完成回采与充填。关键监测结果如下(图22，图23)：
+
+(1) 围岩稳定性：在整个回采周期内，顶板最大沉降量为42 mm，两帮最大收敛量为25 mm，均远低于预设的100 mm预警值，且位移速率在回采结束后迅速趋于稳定。微震事件主要集中在爆破后短时间内，且能量较低，未出现大能量聚集事件，表明岩体破坏得到有效控制。
+
+(2) 支护结构效能：锚杆轴力在爆破后迅速上升，随后保持稳定，最大值为杆体屈服强度的65%，处于安全范围内。锚索预应力损失小于10%，发挥了良好的深部悬吊作用。
+
+(3) 充填体行为：充填体在28天内强度达到设计值(2MPa)，有效接顶，对围岩提供了稳定的侧向支撑。
+
+监测数据与优化方案的数值模拟预测结果吻合度良好(位移预测误差<15%)，验证了精细化模型和优化理论的可靠性。
+
+\subsection{综合效益评价}
+(1) 安全效益：试验采场在整个服务期内未发生任何冒顶片帮事故，安全状态评价为“优秀”。为矿山在类似复杂区域开采建立了信心和标准。
+
+(2) 经济效益：直接收益：试验采场矿石回收率达到92.5%，较原设计(约70%)大幅提升。按此比例推算，在受影响的113万吨难采储量中，可多回收矿石约25万吨，直接经济效益超4000万元。
+
+(3) 成本分析：虽然协同控制方案增加了初期支护和优化设计成本(约增加15元/吨)，但因回收率大幅提升、贫化率降低、安全事故减少带来的综合效益，使吨矿成本实际下降约8元/吨。
+
+(4) 效率提升：由于安全性提高，采场作业循环加快，设备利用率提高，使综合生产效率提升了22.3%。
+
+(5) 社会与环境效益：从根本上消除了重大安全隐患，保障了员工生命安全。高回收率减少了地表尾矿排放和土地占用，符合绿色矿山建设要求。形成的技术体系对行业具有示范和推广价值。
+
+\section{结论与展望}
+\subsection{主要结论}
+(1) 提出了“VDE多维地球物理扫描 + BIPS数字钻孔精细标定”的融合探测方法，有效解决了井下复杂破碎岩体结构精细、透明化刻画的难题。以此为基础构建的融合电阻率损伤变量与裂隙网络信息的三维岩体质量可视化分级模型(3D-RQDVM)，实现了地质条件的定量化、三维化表征，为科学采矿提供了前所未有的精准地质底座。
+
+(2) 通过多水平、多角度的系统岩石力学试验，全面获得了红山铁矿复杂破碎矿岩的强度与变形参数，揭示了其高强度、高离散性、强各向异性的力学行为特征。提出的“经验公式初估-现场监测反演校准”岩体参数综合确定方法，显著提高了参数取值的工程可靠性。
+
+(3) 基于精细化三维地质力学模型，综合运用数值模拟、稳定图法和可靠度理论，深入揭示了复杂破碎岩体采场在“开挖卸荷-应力集中-塑性损伤萌生扩展-贯通成面-关键块体失稳”这一链式过程中的失稳机理，并量化分析了水与爆破动载的催化加速作用。
+
+(4) 首创了适用于复杂破碎岩体的“顶板围岩注-锚-索协同承载结构优化、矿块结构参数群智能反演设计、回采顺序时空动态规划”三位一体协同控制理论框架。采用“数值模拟-代理模型-多目标进化算法”混合优化策略，实现了安全、经济、效率等多目标下的参数智能优化，给出了红山铁矿的最优控制方案。
+
+(5) 现场工业性试验与全方位监测验证了整套理论与技术的可行性、有效性和优越性。应用后采场稳定性根本改善，矿石回收率显著提升，取得了显著的安全、经济和社会效益，形成了一套可复制、可推广的复杂破碎岩体安全高效开采成套技术。
+
+\subsection{创新点}
+(1) 方法创新：提出了地球物理探测与数字钻探信息融合的三维地质建模方法，构建了3D-RQDVM模型，实现了复杂破碎岩体结构的精细化、透明化表征。
+
+(2) 理论创新：建立了“三位一体”的协同控制理论框架，将传统孤立的支护、设计、时序问题上升为系统优化问题。
+
+(3) 技术创新：形成了“精细化建模-多场耦合机理分析-智能协同优化-工业验证”的完整技术链条与成套解决方案。
+
+(4) 应用创新：成功解决了红山铁矿重大工程难题，并形成了具有普适性的方法论，为行业类似问题提供了新范式。
+
+\subsection{展望}
+尽管本研究取得了系统性成果，但复杂岩体工程问题永无止境。未来可在以下方向深化研究：
+
+(1) 将人工智能(如深度学习)更深入地应用于地球物理数据自动解译、裂隙网络三维重构和岩体参数空间预测中。
+
+(2) 发展考虑岩体损伤累进演化和流变效应的本构模型，实现采场全生命周期稳定性动态预测与调控。
+
+(3) 探索基于物联网(IoT)和数字孪生(Digital Twin)的智能采矿系统，实现开采过程的实时感知、动态优化与自主决策。
+
+(4) 将本研究形成的理论框架拓展至其他类型复杂地质条件(如软弱岩层、高应力岩爆、含水沙层等)下的矿产资源开发中。
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{圆柱钢试样的加载试验方案}
+\label{tab:loading_test_scheme}
+\begin{tabular}{@{}ccccc@{}}
+\toprule
+样品编号 & 控制模式 & 力的加载速率/(kN·s$^{-1}$) & 位移加载模式/(mm·s$^{-1}$) \\
+Sample No. & Controlling mode & Load control rate/(kN·s$^{-1}$) & Displacement control rate/(mm·s$^{-1}$) \\
+\midrule
+G30L–1 & L & 0.1 & (0.001 10) \\
+G30D–1 & D & – & 0.001 67 \\
+G30L–2 & L & 0.2 & (0.001 87) \\
+G30D–2 & D & – & 0.003 33 \\
+G40L–1 & L & 0.1 & (0.000 82) \\
+G40D–1 & D & – & 0.001 67 \\
+G40L–2 & L & 0.2 & (0.001 59) \\
+G40D–2 & D & – & 0.003 33 \\
+\bottomrule
+\multicolumn{5}{l}{\small 注：“G30”，“G40”分别代表试样G30，G40；“L”，“D”分别代表荷载、位移控制模式；} \\
+\multicolumn{5}{l}{\small “L–1”，“L–2”分别代表荷载控制速率为0.1，0.2 kN/s；“D–1”，“D–2”分别代表位移控制速率为0.001 67，} \\
+\multicolumn{5}{l}{\small 0.003 33 mm/s；“( )”里面的数值代表荷载控制速率条件下的等效位移控制速率。}
+\end{tabular}
+\end{table}
+
+\bibliographystyle{unsrtnat}
+\begin{thebibliography}{30}
+\bibitem{1} 刘东燕. 断续节理岩体的压剪断裂及其强度特性研究[博士学位论文][D]. 重庆：重庆建筑大学，1993. (LIU Dongyan. Research on mixed mode fracture in rock and strength properties of rock mass with intermittent joints[Ph. D. Thesis][D]. Chongqing：Chongqing Jianzhu University，1993. (in Chinese))
+\bibitem{2} 张三. 爆炸力学在工程中的应用[R]. 武汉：中国科学院武汉岩土力学研究所，2000. (ZHANG San. Application of mechanism of explosion to engineering[R]. Wuhan：Institute of Rock and Soil Mechanics，Chinese Academy of Sciences，2000. (in Chinese))
+\bibitem{3} WANG J. Article title[R]. SPE 849499，1996.
+\bibitem{4} DONDE P M. 机械振动学[M]. 张三译. 北京：中国某出版社，1986. (DONDE P M. Mechanical vibration[M]. Translated by ZHANG San. Beijing：Some Press，1986. (in Chinese))
+\bibitem{5} 许某某，史某某，张某某，等. 文章标题[J]. 岩石力学与工程学报，2003，22(1)：117–122. (XU Moumou，SHI Moumou，ZHANG Moumou，et al. Article title[J]. Chinese Journal of Rock Mechanics and Engineering，2003，22(1)：117–122. (in Chinese))
+\bibitem{6} BUSH G W，SI Y，ZHANG B，et al. Abc is abc[J]. Rock Mechanics，2000，22(2)：117–122.
+\bibitem{7} 许东俊，史永胜，张百发，等. 书或论文集中的文章[C]// 张三，李四，王五等编. 第6次什么会议论文集. 上海：商务出版社，1996：259–264. (XU Dongjun，SI Yongsheng，ZHANG Baifa，et al. Article title[C]// ZHANG San，LI Si，WANG Wu，et al ed. Proc. of the 6th What Conference. Shanghai：Business Press，1996：259–264. (in Chinese))
+\bibitem{8} 中华人民共和国行业标准编写组. JGJ 94–94建筑桩基技术规范[S]. 北京：中国建筑工业出版社，1995. (The Professional Standards Compilation Group of Peoples Republic of China. JGJ 94–94 Technical code for building pile foundation[S]. Beijing：China Architecture and Building Press，1995. (in Chinese))
+\bibitem{9} Bieniawski Z T. Engineering rock mass classification[M]. New York: John Wiley \& Sons, 1989.
+\bibitem{10} Barton N, Lien R, Lunde J. Engineering classification of rock masses for the design of tunnel support[J]. Rock Mechanics, 1974, 6(4): 279-303.
+\bibitem{11} Hoek E, Brown E T. Underground excavations in rock[M]. London: Institution of Mining and Metallurgy, 1980.
+\bibitem{12} Journel A G, Huijbregts C J. Mining geostatistics[M]. London: Academic Press, 1978.
+\bibitem{13} Priest S D. Discontinuity analysis for rock engineering[M]. London: Chapman \& Hall, 1993.
+\bibitem{14} Deutsch C V, Journel A G. GSLIB: geostatistical software library and user's guide[M]. New York: Oxford University Press, 1992.
+\bibitem{15} Hoek E, Carranza-Torres C, Corkum B. Hoek-Brown failure criterion-2002 edition[J]. Proceedings of the North American Rock Mechanics Symposium, 2002, 1: 267-273.
+\bibitem{16} Patton F D. Multiple modes of shear failure in rock[J]. Transactions of the American Society of Civil Engineers, 1966, 132: 1153-1171.
+\bibitem{17} Goodman R E, Taylor R L, Brekke T L. A model for the mechanics of jointed rock[J]. Journal of Soil Mechanics and Foundation Engineering, 1968, 94(3): 637-659.
+\bibitem{18} Jaeger J C. Shear failure of anisotropic rocks[J]. Geotechnique, 1960, 10(3): 219-235.
+\bibitem{19} Itasca Consulting Group. FLAC3D version 7.0 user's manual[M]. Minneapolis: Itasca Consulting Group, 2019.
+\bibitem{20} Pande G N, Beer G, Williams J R. Numerical methods in rock mechanics[M]. London: John Wiley \& Sons, 1990.
+\bibitem{21} Cundall P A, Strack O D L. A discrete numerical model for granular assemblies[J]. Geotechnique, 1979, 29(1): 47-65.
+\bibitem{22} Farmer I W. Principles of rock mechanics[M]. London: Chapman \& Hall, 1983.
+\bibitem{23} Windsor C R. Rock reinforcement systems[M]. London: Taylor \& Francis, 1997.
+\bibitem{24} Box G E P, Wilson K B. On the experimental attainment of optimum conditions[J]. Journal of the Royal Statistical Society, 1951, 13(1): 1-45.
+\bibitem{25} Goldberg D E. Genetic algorithms in search, optimization, and machine learning[M]. Reading: Addison-Wesley, 1989.
+\bibitem{26} Mathews L H, Kelly R E. Stability of large underground openings in hard rock[J]. Transactions of the American Institute of Mining, Metallurgical, and Petroleum Engineers, 1979, 266(1): 171-178.
+\bibitem{27} Jing L. Numerical modeling of discrete rock fractures: a review[J]. International Journal of Rock Mechanics and Mining Sciences, 2003, 40(6-7): 861-873.
+\bibitem{28} Einstein H H. Rock mechanics: achievements and aspirations[J]. Rock Mechanics and Rock Engineering, 2007, 40(1): 1-16.
+\bibitem{29} Jiang Y, Zhao J, Li S. Intelligent monitoring and control of rockburst in deep underground engineering[J]. Tunnelling and Underground Space Technology, 2014, 42: 27-38.
+\end{thebibliography}
+
+\end{document}
