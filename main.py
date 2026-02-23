@@ -238,6 +238,10 @@ print(f"🚀 当前使用的设备: {device}")
 model = AttResUNet(in_channels=1, out_channels=1).to(device)
 criterion = nn.BCELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+# --- 新增：余弦退火策略 ---
+# T_max 通常设置为总的 epoch 数，表示学习率从最大降到最小所需的周期
+scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=num_epochs, eta_min=1e-6)
+# eta_min 是学习率能降到的最小值，建议设置一个较小的数（如 1e-6）而不是 0
 
 # 用于保存最佳模型的变量
 best_val_loss = float('inf')
@@ -276,7 +280,10 @@ for epoch in range(num_epochs):
             outputs = model(images)
             v_loss = criterion(outputs, masks)
             epoch_val_loss += v_loss.item()
-    
+    # --- 新增：更新学习率 ---
+    # 获取当前学习率用于打印查看
+    current_lr = optimizer.param_groups[0]['lr']
+    print(f"📡 Current Learning Rate: {current_lr:.6f}")
     # 计算本轮平均损失
     avg_train_loss = epoch_train_loss / len(train_loader)
     avg_val_loss = epoch_val_loss / len(val_loader)
