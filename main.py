@@ -8,7 +8,6 @@ from torch.utils.data import Dataset, DataLoader
 from PIL import Image
 
 
-
 # ==========================================
 # 超参数
 # ==========================================
@@ -107,7 +106,7 @@ class MyDataset(Dataset):
 # ==========================================
 # 2. 模型组件
 # ==========================================
-class ResBlock(nn.Module):
+class ResBlock(nn.Module):#残差卷积块 类
     def __init__(self, in_channels, out_channels, stride=1):
         super().__init__()
         self.mp = nn.Sequential(
@@ -117,7 +116,7 @@ class ResBlock(nn.Module):
             nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(out_channels)
         )
-        self.shortcut = nn.Sequential()
+        self.shortcut = nn.Sequential()#恒等映射
         if stride != 1 or in_channels != out_channels:
             self.shortcut = nn.Sequential(
                 nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=stride, bias=False),
@@ -128,9 +127,9 @@ class ResBlock(nn.Module):
     def forward(self, x):
         out = self.mp(x)
         out += self.shortcut(x)
-        return self.relu(out)
+        return self.relu(out)#两条线路会和后再ReLU
 
-class AttentionGate(nn.Module):
+class AttentionGate(nn.Module):#注意力门 类
     def __init__(self, F_g, F_l, F_int):
         super().__init__()
         self.W_g = nn.Sequential(
