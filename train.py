@@ -23,19 +23,19 @@ class SystemValidator:
         sys.exit(1)
 
     def check_env(self, data_root, save_path):
-        logger.info("🔍 启动前自检...")
+        logger.info("启动前自检...")
         
         # 1. 检查 CUDA (GPU)
         if not torch.cuda.is_available():
             self._fail("未检测到 CUDA 设备。请确认已开启 GPU 实例，或检查驱动配置。")
         
         gpu_name = torch.cuda.get_device_name(0)
-        logger.info(f"✅ GPU 环境: {gpu_name}")
+        logger.info(f"GPU 环境: {gpu_name}")
 
         # 2. 检查数据集路径
         if not os.path.exists(data_root):
             self._fail(f"数据集目录不存在: {data_root}")
-        logger.info(f"✅ 数据集路径: {data_root}")
+        logger.info(f"数据集路径: {data_root}")
 
         # 3. 检查模型保存路径 (不存在则自动创建)
         if not os.path.exists(save_path):
@@ -44,9 +44,9 @@ class SystemValidator:
                 logger.info(f"📂 提示: 已创建保存目录: {save_path}")
             except Exception as e:
                 self._fail(f"无法创建保存目录 {save_path}: {e}")
-        logger.info(f"✅ 保存路径: {save_path}")
+        logger.info(f"保存路径: {save_path}")
 
-        logger.info("🚀 [SUCCESS] 检查通过，环境就绪！")
+        logger.info("[SUCCESS] 检查通过，环境就绪！")
         logger.info("="*40 + "\n")
 SystemValidator().check_env(config["data_root"], config["save_path"])
         
@@ -73,11 +73,11 @@ train_loader = DataLoader(train_dataset, batch_size=config["batch"], shuffle=Tru
 val_loader = DataLoader(val_dataset, batch_size=config["batch"], shuffle=False)
 test_loader = DataLoader(test_dataset, batch_size=config["batch"], shuffle=False)
 
-logger.info(f"✅ 数据划分完成：训练集 {len(train_dataset)}，验证集 {len(val_dataset)}，测试集 {len(test_dataset)}")
+logger.info(f"数据划分完成：训练集 {len(train_dataset)}，验证集 {len(val_dataset)}，测试集 {len(test_dataset)}")
 
 # 3. 初始化模型与优化器
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-logger.info(f"🚀 当前使用的设备: {device}")
+logger.info(f"当前使用的设备: {device}")
 
 model = AttResUNet(in_channels=1, out_channels=1).to(device)
 criterion = nn.BCELoss()
@@ -127,7 +127,7 @@ for epoch in range(config["num_epochs"]):
     # --- 新增：更新学习率 ---
     # 获取当前学习率用于打印查看
     current_lr = optimizer.param_groups[0]['lr']
-    logger.info(f"📡 Current Learning Rate: {current_lr:.6f}")
+    logger.info(f"Current Learning Rate: {current_lr:.6f}")
     # 计算本轮平均损失
     avg_train_loss = epoch_train_loss / len(train_loader)
     avg_val_loss = epoch_val_loss / len(val_loader)
@@ -142,7 +142,7 @@ for epoch in range(config["num_epochs"]):
             "config":config
         }#打包模型参数以及初始条件
         torch.save(checkpoint, "att_res_unet_best.pth")#一并封装保存
-        logger.info(f"⭐ 发现更优验证集表现，模型已更新保存！")
+        logger.info(f"发现更优验证集表现，模型已更新保存~")
     logger.info("-" * 30)
 
 logger.info(f"训练完成！最优验证集 Loss 为: {best_val_loss:.4f}")
