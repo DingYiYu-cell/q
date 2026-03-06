@@ -7,7 +7,29 @@ import torchvision
 from torch.utils.data import Dataset, DataLoader
 from PIL import Image
 
-
+"""
+                            _ooOoo_
+                           o8888888o
+                           88" . "88
+                           (| -_- |)
+                           O\  =  /O
+                        ____/`---'\____
+                      .'  \\|     |//  `.
+                     /  \\|||  :  |||//  \
+                    /  _||||| -:- |||||-  \
+                    |   | \\\  -  /// |   |
+                    | \_|  ''\---/''  |   |
+                    \  .-\__  `-`  ___/-. /
+                  ___`. .'  /--.--\  `. . __
+               ."" '<  `.___\_<|>_/___.'  >'"".
+              | | :  `- \`.;`\ _ /`;.`/ - ` : | |
+              \  \ `-.   \_ __\ /__ _/   .-` /  /
+         ======`-.____`-.___\_____/___.-`____.-'======
+                            `=---='
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 佛祖保佑       永無BUG       水豚加持
+                 指標正常       汎化超常      畢業順利
+"""
 # ==========================================
 # 超参数
 # ==========================================
@@ -30,7 +52,7 @@ class SystemValidator:
 
     def check_env(self, dataset_path, save_path):
         print("="*40)
-        print("🔍 神经网络启动前自检...")
+        print("🔍 启动前自检...")
         
         # 1. 检查 CUDA (GPU)
         if not torch.cuda.is_available():
@@ -133,7 +155,7 @@ class AttentionGate(nn.Module):#注意力门 类
     def __init__(self, F_g, F_l, F_int):
         super().__init__()
         self.W_g = nn.Sequential(
-            nn.Conv2d(F_g, F_int, kernel_size=1, stride=1, padding=0, bias=True),
+            nn.Conv2vd(F_g, F_int, kernel_size=1, stride=1, padding=0, bias=True),
             nn.BatchNorm2d(F_int)
         )
         self.W_x = nn.Sequential(
