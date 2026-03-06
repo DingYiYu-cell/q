@@ -37,6 +37,15 @@ data_root = "/root/Dataset/Pituitary tumor"
 batch = 20  
 num_epochs = 50 
 lr = 1e-4
+global_seed = 42
+config= {
+    "data_root":data_root,
+    "batch":batch,
+    "num_epochs":num_epochs,
+    "lr":lr,
+    "global_seed":global_seed
+    }#初始条件写入字典
+torch.manual_seed(global_seed)#固定全局种子
 # ==========================================
 # 0. 系统检查
 # ==========================================
@@ -189,7 +198,7 @@ class EncoderBlock(nn.Module):
 
 class DecoderBlock(nn.Module):
     def __init__(self, in_channels, out_channels):
-        super(DecoderBlock, self).__init__()
+        super().__init__()
         self.upsample = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)
         # 修正：这里直接传参数，不再使用不匹配的关键词 gating_channels
         self.att_gate = AttentionGate(in_channels, out_channels, out_channels // 2)
@@ -242,7 +251,7 @@ test_size = len(full_dataset) - train_size - val_size
 
 train_dataset, val_dataset, test_dataset = random_split(
     full_dataset, [train_size, val_size, test_size],
-    generator=torch.Generator().manual_seed(42)
+    generator=torch.Generator().manual_seed(global_seed)
 )
 
 # 2. 建立 DataLoader
@@ -314,7 +323,11 @@ for epoch in range(num_epochs):
     # --- 保存性能最好的模型 ---
     if avg_val_loss < best_val_loss:
         best_val_loss = avg_val_loss
-        torch.save(model.state_dict(), "att_res_unet_best.pth")
+        checkpoint={
+            "state_dict":model.state_dict(),
+            "config":config
+        }#打包模型参数以及初始条件
+        torch.save(checkpoint, "att_res_unet_best.pth")#一并封装保存
         print(f"⭐ 发现更优验证集表现，模型已更新保存！")
     print("-" * 30)
 
