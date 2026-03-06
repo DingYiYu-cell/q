@@ -1,6 +1,11 @@
 # ==========================================
 # 1. 自定义数据类
 # ==========================================
+from torch.utils.data import Dataset
+import os
+import re
+import torchvision
+from PIL import Image
 class MyDataset(Dataset):
     def __init__(self, data_root):
         super().__init__()

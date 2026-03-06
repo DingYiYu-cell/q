@@ -1,3 +1,4 @@
+import torch.nn as nn
 class AttentionGate(nn.Module):#注意力门 类
     def __init__(self, F_g, F_l, F_int):
         super().__init__()

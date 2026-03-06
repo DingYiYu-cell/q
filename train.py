@@ -1,3 +1,12 @@
+import torch
+import torch.nn as nn
+import torch.nn.functional as F  # 修正：必须导入 F 才能使用 interpolate
+import os
+from torch.utils.data import DataLoader
+import MyDataset
+import AttResUNet
+from config import config
+import sys
 # ==========================================
 # 0. 系统检查
 # ==========================================
@@ -11,7 +20,7 @@ class SystemValidator:
         print(f"\n🚨 [环境报错]: {msg}")
         sys.exit(1)
 
-    def check_env(self, dataset_path, save_path):
+    def check_env(self, data_root, save_path):
         print("="*40)
         print("🔍 启动前自检...")
         
@@ -23,9 +32,9 @@ class SystemValidator:
         print(f"✅ GPU 环境: {gpu_name}")
 
         # 2. 检查数据集路径
-        if not os.path.exists(dataset_path):
-            self._fail(f"数据集目录不存在: {dataset_path}")
-        print(f"✅ 数据集路径: {dataset_path}")
+        if not os.path.exists(data_root):
+            self._fail(f"数据集目录不存在: {data_root}")
+        print(f"✅ 数据集路径: {data_root}")
 
         # 3. 检查模型保存路径 (不存在则自动创建)
         if not os.path.exists(save_path):
@@ -38,7 +47,7 @@ class SystemValidator:
 
         print("🚀 [SUCCESS] 检查通过，环境就绪！")
         print("="*40 + "\n")
-SystemValidator().check_env(dataset_path='',save_path='')
+SystemValidator().check_env(config["data_root"], config["save_path"])
         
 
 
@@ -48,7 +57,7 @@ SystemValidator().check_env(dataset_path='',save_path='')
 from torch.utils.data import random_split
 
 # 1. 实例化并划分数据集 (8:1:1)
-full_dataset = MyDataset(data_root=data_root)
+full_dataset = MyDataset(data_root=config["data_root"])
 
 train_size = int(0.8 * len(full_dataset))
 val_size = int(0.1 * len(full_dataset))
@@ -56,13 +65,13 @@ test_size = len(full_dataset) - train_size - val_size
 
 train_dataset, val_dataset, test_dataset = random_split(
     full_dataset, [train_size, val_size, test_size],
-    generator=torch.Generator().manual_seed(global_seed)
+    generator=torch.Generator().manual_seed(config["global_seed"])
 )
 
 # 2. 建立 DataLoader
-train_loader = DataLoader(train_dataset, batch_size=batch, shuffle=True)
-val_loader = DataLoader(val_dataset, batch_size=batch, shuffle=False)
-test_loader = DataLoader(test_dataset, batch_size=batch, shuffle=False)
+train_loader = DataLoader(train_dataset, batch_size=config["batch"], shuffle=True)
+val_loader = DataLoader(val_dataset, batch_size=config["batch"], shuffle=False)
+test_loader = DataLoader(test_dataset, batch_size=config["batch"], shuffle=False)
 
 print(f"✅ 数据划分完成：训练集 {len(train_dataset)}，验证集 {len(val_dataset)}，测试集 {len(test_dataset)}")
 
@@ -72,10 +81,10 @@ print(f"🚀 当前使用的设备: {device}")
 
 model = AttResUNet(in_channels=1, out_channels=1).to(device)
 criterion = nn.BCELoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+optimizer = torch.optim.Adam(model.parameters(), lr=config["lr"])
 # --- 新增：余弦退火策略 ---
 # T_max 通常设置为总的 epoch 数，表示学习率从最大降到最小所需的周期
-scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=num_epochs, eta_min=1e-6)
+scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=config["config["num_epochs"]"], eta_min=1e-6)
 # eta_min 是学习率能降到的最小值，建议设置一个较小的数（如 1e-6）而不是 0
 
 # 用于保存最佳模型的变量
@@ -83,7 +92,7 @@ best_val_loss = float('inf')
 
 print("开始训练...")
 
-for epoch in range(num_epochs):
+for epoch in range(config["num_epochs"]):
     # --- 训练阶段 ---
     model.train()
     epoch_train_loss = 0.0
@@ -103,7 +112,7 @@ for epoch in range(num_epochs):
         epoch_train_loss += loss.item()
         
         if step % 5 == 0:
-            print(f"Epoch [{epoch+1}/{num_epochs}], Step [{step}/{len(train_loader)}], Train Loss: {loss.item():.4f}")
+            print(f"Epoch [{epoch+1}/{config["num_epochs"]}], Step [{step}/{len(train_loader)}], Train Loss: {loss.item():.4f}")
 
     # --- 验证阶段 ---
     model.eval() # 切换为评估模式
@@ -123,7 +132,7 @@ for epoch in range(num_epochs):
     avg_train_loss = epoch_train_loss / len(train_loader)
     avg_val_loss = epoch_val_loss / len(val_loader)
     
-    print(f"===> Epoch [{epoch+1}/{num_epochs}] Avg Train Loss: {avg_train_loss:.4f} | Avg Val Loss: {avg_val_loss:.4f}")
+    print(f"===> Epoch [{epoch+1}/{config["num_epochs"]}] Avg Train Loss: {avg_train_loss:.4f} | Avg Val Loss: {avg_val_loss:.4f}")
 
     # --- 保存性能最好的模型 ---
     if avg_val_loss < best_val_loss:
