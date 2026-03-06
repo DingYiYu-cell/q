@@ -2,4 +2,4 @@
 *.pth
 __pycache__/
 *.ckpt
-
+logs/
