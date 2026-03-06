@@ -3,7 +3,7 @@ class AttentionGate(nn.Module):#注意力门 类
     def __init__(self, F_g, F_l, F_int):
         super().__init__()
         self.W_g = nn.Sequential(
-            nn.Conv2vd(F_g, F_int, kernel_size=1, stride=1, padding=0, bias=True),
+            nn.Conv2d(F_g, F_int, kernel_size=1, stride=1, padding=0, bias=True),
             nn.BatchNorm2d(F_int)
         )
         self.W_x = nn.Sequential(

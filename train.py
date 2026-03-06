@@ -3,8 +3,8 @@ import torch.nn as nn
 import torch.nn.functional as F  # 修正：必须导入 F 才能使用 interpolate
 import os
 from torch.utils.data import DataLoader
-import MyDataset
-import AttResUNet
+from MyDataset import MyDataset
+from AttResUNet import AttResUNet
 from config import config
 import sys
 from torch.utils.data import random_split
@@ -84,7 +84,7 @@ criterion = nn.BCELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=config["lr"])
 # --- 新增：余弦退火策略 ---
 # T_max 通常设置为总的 epoch 数，表示学习率从最大降到最小所需的周期
-scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=config["config["num_epochs"]"], eta_min=1e-6)
+scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=config["num_epochs"], eta_min=1e-6)
 # eta_min 是学习率能降到的最小值，建议设置一个较小的数（如 1e-6）而不是 0
 
 # 用于保存最佳模型的变量

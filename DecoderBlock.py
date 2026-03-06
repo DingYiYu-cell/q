@@ -1,5 +1,5 @@
-import AttentionGate
-import ResBlock
+from AttentionGate import AttentionGate
+from ResBlock import ResBlock
 import torch
 import torch.nn as nn
 class DecoderBlock(nn.Module):
