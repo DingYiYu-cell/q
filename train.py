@@ -7,6 +7,8 @@ import MyDataset
 import AttResUNet
 from config import config
 import sys
+from torch.utils.data import random_split
+from utils import logger
 # ==========================================
 # 0. 系统检查
 # ==========================================
@@ -17,36 +19,35 @@ class SystemValidator:
 
     def _fail(self, msg):
         """报错并强行退出"""
-        print(f"\n🚨 [环境报错]: {msg}")
+        logger.error( f"环境报错: {msg}")
         sys.exit(1)
 
     def check_env(self, data_root, save_path):
-        print("="*40)
-        print("🔍 启动前自检...")
+        logger.info("🔍 启动前自检...")
         
         # 1. 检查 CUDA (GPU)
         if not torch.cuda.is_available():
             self._fail("未检测到 CUDA 设备。请确认已开启 GPU 实例，或检查驱动配置。")
         
         gpu_name = torch.cuda.get_device_name(0)
-        print(f"✅ GPU 环境: {gpu_name}")
+        logger.info(f"✅ GPU 环境: {gpu_name}")
 
         # 2. 检查数据集路径
         if not os.path.exists(data_root):
             self._fail(f"数据集目录不存在: {data_root}")
-        print(f"✅ 数据集路径: {data_root}")
+        logger.info(f"✅ 数据集路径: {data_root}")
 
         # 3. 检查模型保存路径 (不存在则自动创建)
         if not os.path.exists(save_path):
             try:
                 os.makedirs(save_path)
-                print(f"📂 提示: 已创建保存目录: {save_path}")
+                logger.info(f"📂 提示: 已创建保存目录: {save_path}")
             except Exception as e:
                 self._fail(f"无法创建保存目录 {save_path}: {e}")
-        print(f"✅ 保存路径: {save_path}")
+        logger.info(f"✅ 保存路径: {save_path}")
 
-        print("🚀 [SUCCESS] 检查通过，环境就绪！")
-        print("="*40 + "\n")
+        logger.info("🚀 [SUCCESS] 检查通过，环境就绪！")
+        logger.info("="*40 + "\n")
 SystemValidator().check_env(config["data_root"], config["save_path"])
         
 
@@ -54,7 +55,6 @@ SystemValidator().check_env(config["data_root"], config["save_path"])
 # ==========================================
 # 3. 训练流程 (含数据集划分与自动验证)
 # ==========================================
-from torch.utils.data import random_split
 
 # 1. 实例化并划分数据集 (8:1:1)
 full_dataset = MyDataset(data_root=config["data_root"])
@@ -73,11 +73,11 @@ train_loader = DataLoader(train_dataset, batch_size=config["batch"], shuffle=Tru
 val_loader = DataLoader(val_dataset, batch_size=config["batch"], shuffle=False)
 test_loader = DataLoader(test_dataset, batch_size=config["batch"], shuffle=False)
 
-print(f"✅ 数据划分完成：训练集 {len(train_dataset)}，验证集 {len(val_dataset)}，测试集 {len(test_dataset)}")
+logger.info(f"✅ 数据划分完成：训练集 {len(train_dataset)}，验证集 {len(val_dataset)}，测试集 {len(test_dataset)}")
 
 # 3. 初始化模型与优化器
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(f"🚀 当前使用的设备: {device}")
+logger.info(f"🚀 当前使用的设备: {device}")
 
 model = AttResUNet(in_channels=1, out_channels=1).to(device)
 criterion = nn.BCELoss()
@@ -90,7 +90,7 @@ scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=config["
 # 用于保存最佳模型的变量
 best_val_loss = float('inf')
 
-print("开始训练...")
+logger.info("开始训练...")
 
 for epoch in range(config["num_epochs"]):
     # --- 训练阶段 ---
@@ -112,7 +112,7 @@ for epoch in range(config["num_epochs"]):
         epoch_train_loss += loss.item()
         
         if step % 5 == 0:
-            print(f"Epoch [{epoch+1}/{config["num_epochs"]}], Step [{step}/{len(train_loader)}], Train Loss: {loss.item():.4f}")
+            logger.info(f"Epoch [{epoch+1}/{config["num_epochs"]}], Step [{step}/{len(train_loader)}], Train Loss: {loss.item():.4f}")
 
     # --- 验证阶段 ---
     model.eval() # 切换为评估模式
@@ -127,12 +127,12 @@ for epoch in range(config["num_epochs"]):
     # --- 新增：更新学习率 ---
     # 获取当前学习率用于打印查看
     current_lr = optimizer.param_groups[0]['lr']
-    print(f"📡 Current Learning Rate: {current_lr:.6f}")
+    logger.info(f"📡 Current Learning Rate: {current_lr:.6f}")
     # 计算本轮平均损失
     avg_train_loss = epoch_train_loss / len(train_loader)
     avg_val_loss = epoch_val_loss / len(val_loader)
     
-    print(f"===> Epoch [{epoch+1}/{config["num_epochs"]}] Avg Train Loss: {avg_train_loss:.4f} | Avg Val Loss: {avg_val_loss:.4f}")
+    logger.info(f"===> Epoch [{epoch+1}/{config["num_epochs"]}] Avg Train Loss: {avg_train_loss:.4f} | Avg Val Loss: {avg_val_loss:.4f}")
 
     # --- 保存性能最好的模型 ---
     if avg_val_loss < best_val_loss:
@@ -142,7 +142,7 @@ for epoch in range(config["num_epochs"]):
             "config":config
         }#打包模型参数以及初始条件
         torch.save(checkpoint, "att_res_unet_best.pth")#一并封装保存
-        print(f"⭐ 发现更优验证集表现，模型已更新保存！")
-    print("-" * 30)
+        logger.info(f"⭐ 发现更优验证集表现，模型已更新保存！")
+    logger.info("-" * 30)
 
-print(f"训练完成！最优验证集 Loss 为: {best_val_loss:.4f}")
+logger.info(f"训练完成！最优验证集 Loss 为: {best_val_loss:.4f}")
