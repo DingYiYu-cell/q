@@ -42,7 +42,7 @@ class SystemValidator:
         if not os.path.exists(save_path):
             try:
                 os.makedirs(save_path)
-                logger.info(f"📂 提示: 已创建保存目录: {save_path}")
+                logger.info(f"提示: 已创建保存目录: {save_path}")
             except Exception as e:
                 self._fail(f"无法创建保存目录 {save_path}: {e}")
         logger.info(f"保存路径: {save_path}")
