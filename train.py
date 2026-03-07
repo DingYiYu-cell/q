@@ -9,6 +9,7 @@ from config import config
 import sys
 from torch.utils.data import random_split
 from utils import logger
+from visualizer import Visualizer
 # ==========================================
 # 0. 系统检查
 # ==========================================
@@ -55,6 +56,8 @@ SystemValidator().check_env(config["data_root"], config["save_path"])
 # ==========================================
 # 3. 训练流程 (含数据集划分与自动验证)
 # ==========================================
+
+viz = Visualizer(log_dir=os.path.join(config["save_path"],"tf_logs"))#实例化Tensorboard记录器
 
 # 1. 实例化并划分数据集 (8:1:1)
 full_dataset = MyDataset(data_root=config["data_root"])
@@ -113,7 +116,7 @@ for epoch in range(config["num_epochs"]):
         
         if step % 5 == 0:
             logger.info(f"Epoch [{epoch+1}/{config["num_epochs"]}], Step [{step}/{len(train_loader)}], Train Loss: {loss.item():.4f}")
-
+    viz.log_scalars("Loss", {"train": epoch_train_loss}, epoch)#使用每轮损失
     # --- 验证阶段 ---
     model.eval() # 切换为评估模式
     epoch_val_loss = 0.0
@@ -145,4 +148,5 @@ for epoch in range(config["num_epochs"]):
         logger.info(f"发现更优验证集表现，模型已更新保存~")
     logger.info("-" * 30)
 
+viz.close()#关闭writer
 logger.info(f"训练完成！最优验证集 Loss 为: {best_val_loss:.4f}")
