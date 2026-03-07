@@ -54,7 +54,7 @@ SystemValidator().check_env(config["data_root"], config["save_path"])
 
 
 # ==========================================
-# 3. 训练流程 (含数据集划分与自动验证)
+# 1. 训练流程 (含数据集划分与自动验证)
 # ==========================================
 
 viz = Visualizer(log_dir=os.path.join(config["save_path"],"tf_logs"))#实例化Tensorboard记录器
@@ -115,7 +115,7 @@ for epoch in range(config["num_epochs"]):
         epoch_train_loss += loss.item()
         
         if step % 5 == 0:
-            logger.info(f"Epoch [{epoch+1}/{config["num_epochs"]}], Step [{step}/{len(train_loader)}], Train Loss: {loss.item():.4f}")
+            logger.info(f"Epoch [{epoch+1}/{config['num_epochs']}], Step [{step}/{len(train_loader)}], Train Loss: {loss.item():.4f}")
     viz.log_scalars("Loss", {"train": epoch_train_loss}, epoch)#使用每轮损失
     # --- 验证阶段 ---
     model.eval() # 切换为评估模式
@@ -135,7 +135,7 @@ for epoch in range(config["num_epochs"]):
     avg_train_loss = epoch_train_loss / len(train_loader)
     avg_val_loss = epoch_val_loss / len(val_loader)
     
-    logger.info(f"===> Epoch [{epoch+1}/{config["num_epochs"]}] Avg Train Loss: {avg_train_loss:.4f} | Avg Val Loss: {avg_val_loss:.4f}")
+    logger.info(f"===> Epoch [{epoch+1}/{config['num_epochs']}] Avg Train Loss: {avg_train_loss:.4f} | Avg Val Loss: {avg_val_loss:.4f}")
 
     # --- 保存性能最好的模型 ---
     if avg_val_loss < best_val_loss:
