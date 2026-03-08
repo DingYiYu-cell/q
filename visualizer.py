@@ -30,16 +30,13 @@ class Visualizer:
         
         
         
-class get_dice():
-    def __init__(self):
-        pass 
-    def get_dice(pred, target, threshold=0.5):
-        # 1. 先把输出变成 0 或 1 的二值图喵
-        pred = (torch.sigmoid(pred) > threshold).float()
-        target = target.float()
+def get_dice(pred, target, threshold=0.4):
+    # 1. 先把输出变成 0 或 1 的二值图喵
+    pred = (pred > threshold).float()
+    target = target.float()
     
-        # 2. 计算交集和并集喵
-        smooth = 1e-6  # 防止除以 0 的小补丁喵
-        intersection = (pred * target).sum()
-        dice = (2. * intersection + smooth) / (pred.sum() + target.sum() + smooth)
-        return dice.item()
+    # 2. 计算交集和并集喵
+    smooth = 1e-6  # 防止除以 0 的小补丁喵
+    intersection = (pred * target).sum()
+    dice = (2. * intersection + smooth) / (pred.sum() + target.sum() + smooth)
+    return dice.item()
