@@ -9,7 +9,8 @@ from config import config
 import sys
 from torch.utils.data import random_split
 from utils import logger
-from visualizer import Visualizer
+from visualizer import Visualizer, get_dice
+
 # ==========================================
 # 0. 系统检查
 # ==========================================
@@ -92,13 +93,16 @@ scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=config["
 
 # 用于保存最佳模型的变量
 best_val_loss = float('inf')
+best_val_dice = 0.0
+
 
 logger.info("开始训练...")
 
 for epoch in range(config["num_epochs"]):
     # --- 训练阶段 ---
     model.train()
-    epoch_train_loss = 0.0
+    train_loss = 0.0
+    avg_train_loss = 0.0
     
     for step, (images, masks) in enumerate(train_loader):
         images, masks = images.to(device), masks.to(device)
@@ -112,14 +116,26 @@ for epoch in range(config["num_epochs"]):
         loss.backward()
         optimizer.step()
         
-        epoch_train_loss += loss.item()
+        train_loss += loss.item()
+        
+        
         
         if step % 5 == 0:
             logger.info(f"Epoch [{epoch+1}/{config['num_epochs']}], Step [{step}/{len(train_loader)}], Train Loss: {loss.item():.4f}")
-    viz.log_scalars("Loss", {"train": epoch_train_loss}, epoch)#使用每轮损失
+    
+    
+    
+    avg_train_loss = train_loss / len(train_loader)
+    
+    
+    logger.info(f'Current Train Epoch :  Avg LOSS:{avg_train_loss }')
+    
+    
     # --- 验证阶段 ---
     model.eval() # 切换为评估模式
     epoch_val_loss = 0.0
+    epoch_val_dice = 0.0
+    
     
     with torch.no_grad(): # 验证时不计算梯度，节省内存和时间
         for images, masks in val_loader:
@@ -127,18 +143,21 @@ for epoch in range(config["num_epochs"]):
             outputs = model(images)
             v_loss = criterion(outputs, masks)
             epoch_val_loss += v_loss.item()
+            epoch_val_dice += get_dice(outputs, masks)
+        avg_val_loss = epoch_val_loss / len(val_loader)
+        avg_val_dice = epoch_val_dice / len(val_loader)
     # --- 新增：更新学习率 ---
     # 获取当前学习率用于打印查看
     current_lr = optimizer.param_groups[0]['lr']
     logger.info(f"Current Learning Rate: {current_lr:.6f}")
-    # 计算本轮平均损失
-    avg_train_loss = epoch_train_loss / len(train_loader)
-    avg_val_loss = epoch_val_loss / len(val_loader)
-    
-    logger.info(f"===> Epoch [{epoch+1}/{config['num_epochs']}] Avg Train Loss: {avg_train_loss:.4f} | Avg Val Loss: {avg_val_loss:.4f}")
 
+    
+    viz.log_scalars("Loss", {"train": avg_train_loss, "val": avg_val_loss}, epoch)#Tensorboard写入LOSS
+    viz.log_scalars("Dice", {"val": avg_val_dice}, epoch)# 记录 Dice 指标喵
+    logger.info(f"===> Epoch [{epoch+1}/{config['num_epochs']}] Avg Train Loss: {avg_train_loss:.4f}  | Avg Val Loss: {avg_val_loss:.4f} | Avg Val Dice: {avg_val_dice:.4f}")
     # --- 保存性能最好的模型 ---
-    if avg_val_loss < best_val_loss:
+    if avg_val_dice > best_val_dice:
+        best_val_dice = avg_val_dice
         best_val_loss = avg_val_loss
         checkpoint={
             "state_dict":model.state_dict(),
@@ -149,4 +168,4 @@ for epoch in range(config["num_epochs"]):
     logger.info("-" * 30)
 
 viz.close()#关闭writer
-logger.info(f"训练完成！最优验证集 Loss 为: {best_val_loss:.4f}")
+logger.info(f"训练完成！最优验证集 Loss 为: {best_val_loss:.4f}, 最优验证集Dice为：{best_val_dice:.4f}")
