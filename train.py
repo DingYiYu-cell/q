@@ -57,7 +57,7 @@ SystemValidator().check_env(config["data_root"], config["save_path"])
 # ==========================================
 # 1. 训练流程 (含数据集划分与自动验证)
 # ==========================================
-class DiceLoss(nn.Module):
+class DiceLoss(nn.Module):#DiceLoss损失函数
     def __init__(self, smooth=1e-6):
         super(DiceLoss, self).__init__()
         self.smooth = smooth
