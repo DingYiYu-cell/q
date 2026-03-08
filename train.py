@@ -59,7 +59,7 @@ SystemValidator().check_env(config["data_root"], config["save_path"])
 # ==========================================
 class DiceLoss(nn.Module):#DiceLoss损失函数
     def __init__(self, smooth=1e-6):
-        super(DiceLoss, self).__init__()
+        super().__init__()
         self.smooth = smooth
 
     def forward(self, pred, target):
@@ -162,7 +162,9 @@ for epoch in range(config["num_epochs"]):
         for images, masks in val_loader:
             images, masks = images.to(device), masks.to(device)
             outputs = model(images)
-            v_loss = criterion_bce(outputs, masks)
+            v_bce_loss = criterion_bce(outputs, masks)
+            v_dice_loss = criterion_dice(outputs, masks)
+            v_loss = 0.5 * v_bce_loss + 1.5 * v_dice_loss
             epoch_val_loss += v_loss.item()
             epoch_val_dice += get_dice(outputs, masks)
     avg_val_loss = epoch_val_loss / len(val_loader)
