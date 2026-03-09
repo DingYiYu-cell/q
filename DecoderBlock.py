@@ -1,5 +1,6 @@
 from AttentionGate import AttentionGate
-from ResBlock import ResBlock
+from Res34Block import Res34Block
+import torch.nn.functional as F
 import torch
 import torch.nn as nn
 class DecoderBlock(nn.Module):
@@ -8,7 +9,7 @@ class DecoderBlock(nn.Module):
         self.upsample = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)
         # 修正：这里直接传参数，不再使用不匹配的关键词 gating_channels
         self.att_gate = AttentionGate(in_channels, out_channels, out_channels // 2)
-        self.res_block = ResBlock(in_channels + out_channels, out_channels)
+        self.res_block = Res34Block(in_channels + out_channels, out_channels)
 
     def forward(self, x, skip):
         g = self.upsample(x)

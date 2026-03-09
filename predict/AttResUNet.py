@@ -1,6 +1,6 @@
 from EncoderBlock import EncoderBlock
 from DecoderBlock import DecoderBlock
-from ResBlock import ResBlock
+from Res34Block import Res34Block
 import torch.nn as nn
 class AttResUNet(nn.Module):
     def __init__(self, in_channels=1, out_channels=1):
@@ -8,7 +8,7 @@ class AttResUNet(nn.Module):
         self.enc1 = EncoderBlock(in_channels, 64)
         self.enc2 = EncoderBlock(64, 128)
         self.enc3 = EncoderBlock(128, 256)
-        self.bottleneck = ResBlock(256, 512)
+        self.bottleneck = Res34Block(256, 512)
         self.dec3 = DecoderBlock(512, 256)
         self.dec2 = DecoderBlock(256, 128)
         self.dec1 = DecoderBlock(128, 64)

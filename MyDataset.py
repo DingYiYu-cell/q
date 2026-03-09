@@ -34,7 +34,7 @@ class MyDataset(Dataset):
             print(f"✅ 成功加载！共找到 {len(self.img_files)} 对有效的图像-掩码对。")
 
         self.transform = torchvision.transforms.Compose([
-            torchvision.transforms.Resize((256, 256)), 
+            torchvision.transforms.Resize((224, 224)), 
             torchvision.transforms.ToTensor()
         ])
 
