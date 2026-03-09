@@ -44,6 +44,6 @@ class MyDataset(Dataset):
     def __getitem__(self, idx):
         img_path = os.path.join(self.base_dir, self.img_files[idx])
         mask_path = os.path.join(self.base_dir, self.mask_files[idx])
-        img = Image.open(img_path).convert("L")
-        mask = Image.open(mask_path).convert("L")
+        img = Image.open(img_path)
+        mask = Image.open(mask_path)
         return self.transform(img), self.transform(mask)

@@ -6,7 +6,7 @@ class Res34Block(nn.Module):
         super().__init__()
         # 1. 搬出大神练好的 ResNet34 喵！
         resnet = models.resnet34(pretrained=False)
-        
+        resnet.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=1, padding=3, bias=False)
         # 2. 把零件按层级拆开，方便做“跳跃连接”喵
         self.first_layer = nn.Sequential(resnet.conv1, resnet.bn1, resnet.relu) 
         self.pool = resnet.maxpool

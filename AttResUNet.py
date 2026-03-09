@@ -1,60 +1,39 @@
 import torch
 import torch.nn as nn
-from torchvision import models
-# 保持你原有的导入，但 EncoderBlock 会被 ResNet 替换喵
+import torch.nn.functional as F
+from Res34Block import Res34Block # 确保这个文件里有你改好的 stride=1
 from DecoderBlock import DecoderBlock 
-from CBAM import CBAM # 记得把你刚才写的 CBAM 类保存在 CBAM.py 里喵
 
 class AttResUNet(nn.Module):
     def __init__(self, in_channels=1, out_channels=1):
         super().__init__()
+        # 1. 直接使用你封装好的带 CBAM 的 Encoder
+        self.encoder = Res34Block(pretrained=False) # 内部已处理 stride=1 和 1通道输入
         
-        # 1. 加载 ResNet34 引擎 (不使用预训练则 pretrained=False) 喵
-        resnet = models.resnet34(pretrained=False) 
+        # 2. 解码器部分 - 必须有 4 个阶段才能对应 x4, x3, x2, x1, x0
+        self.dec4 = DecoderBlock(512, 256) # 处理 x4 -> x3
+        self.dec3 = DecoderBlock(256, 128) # 处理 x3 -> x2
+        self.dec2 = DecoderBlock(128, 64)  # 处理 x2 -> x1
+        self.dec1 = DecoderBlock(64, 64)   # 处理 x1 -> x0 (这一层让尺寸从 112 回到 224)
         
-        # 处理单通道输入：如果主人图是灰色的，要把第一层改了喵
-        self.init_conv = nn.Sequential(
-            nn.Conv2d(in_channels, 64, kernel_size=7, stride=2, padding=3, bias=False),
-            resnet.bn1,
-            resnet.relu
-        )
-        self.pool = resnet.maxpool # 下采样用喵
-        
-        # 2. 提取 ResNet 的四个阶段作为 Encoder 喵
-        self.enc1 = resnet.layer1 # 输出 64 通道
-        self.enc2 = resnet.layer2 # 输出 128 通道
-        self.enc3 = resnet.layer3 # 输出 256 通道
-        self.enc4 = resnet.layer4 # 输出 512 通道 (这一层就是 Bottleneck 喵)
-
-        # 3. 在瓶颈处插入 CBAM 喵！
-        self.cbam = CBAM(512) 
-
-        # 4. 解码器部分 (通道数要和 ResNet 对应上喵)
-        self.dec3 = DecoderBlock(512, 256)
-        self.dec2 = DecoderBlock(256, 128)
-        self.dec1 = DecoderBlock(128, 64)
-        
-        # 最后的输出层喵
-        self.final_up = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)
-        self.final = nn.Conv2d(64, out_channels, kernel_size=1)
-        self.sigmoid = nn.Sigmoid()
+        # 最后的输出层
+        self.final_conv = nn.Conv2d(64, out_channels, kernel_size=1)
 
     def forward(self, x):
         # --- Encoder 阶段 ---
-        x0 = self.init_conv(x)      # 1/2 大小 (64通道)
-        x1 = self.enc1(self.pool(x0)) # 1/4 大小 (64通道)
-        x2 = self.enc2(x1)          # 1/8 大小 (128通道)
-        x3 = self.enc3(x2)          # 1/16 大小 (256通道)
+        # 拿到你在 Res34Block 里准备好的 5 个特征备份
+        # x0:224, x1:112, x2:56, x3:28, x4:14
+        x0, x1, x2, x3, x4 = self.encoder(x) 
         
-        # --- Bottleneck + CBAM 阶段 ---
-        b = self.enc4(x3)           # 1/32 大小 (512通道)
-        b = self.cbam(b)            # 经过注意力强化喵！
+        # --- Decoder 阶段 ---
+        d4 = self.dec4(x4, x3)   # 输出 28x28
+        d3 = self.dec3(d4, x2)   # 输出 56x56
+        d2 = self.dec2(d3, x1)   # 输出 112x112
+        d1 = self.dec1(d2, x0)   # 输出 224x224 (对接最精细的 x0 层)
         
-        # --- Decoder 阶段 (带跳跃连接) ---
-        d3 = self.dec3(b, x3)
-        d2 = self.dec2(d3, x2)
-        d1 = self.dec1(d2, x1)
+        # --- 输出阶段 ---
+        out = self.final_conv(d1)
         
-        # 因为 ResNet 第一层有缩放，最后可能需要额外上采样一次还原原图喵
-        out = self.final_up(d1)
-        return self.sigmoid(self.final(out))
+        # 重点：只返回一个 Tensor，并且在这里做 Sigmoid
+        # 确保没有多余的逗号喵！
+        return torch.sigmoid(out)

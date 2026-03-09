@@ -3,13 +3,31 @@ from Res34Block import Res34Block
 import torch.nn.functional as F
 import torch
 import torch.nn as nn
+class SimpleResidual(nn.Module):
+    def __init__(self, in_ch, out_ch):
+        super().__init__()
+        self.conv = nn.Sequential(
+            nn.Conv2d(in_ch, out_ch, kernel_size=3, padding=1),
+            nn.BatchNorm2d(out_ch),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(out_ch, out_ch, kernel_size=3, padding=1),
+            nn.BatchNorm2d(out_ch)
+        )
+        # 如果输入输出通道不一致，用 1x1 卷积对齐维度喵
+        self.shortcut = nn.Sequential(
+            nn.Conv2d(in_ch, out_ch, kernel_size=1),
+            nn.BatchNorm2d(out_ch)
+        ) if in_ch != out_ch else nn.Identity()
+        
+    def forward(self, x):
+        return F.relu(self.conv(x) + self.shortcut(x))
 class DecoderBlock(nn.Module):
     def __init__(self, in_channels, out_channels):
         super().__init__()
         self.upsample = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)
         # 修正：这里直接传参数，不再使用不匹配的关键词 gating_channels
         self.att_gate = AttentionGate(in_channels, out_channels, out_channels // 2)
-        self.res_block = Res34Block(in_channels + out_channels, out_channels)
+        self.res_block = SimpleResidual(in_channels + out_channels, out_channels)
 
     def forward(self, x, skip):
         g = self.upsample(x)
