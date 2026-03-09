@@ -2,34 +2,36 @@ import torch.nn as nn
 from torchvision import models
 from CBAM import CBAM
 class Res34Block(nn.Module):
-    def __init__(self, pretrained=False):
+    def __init__(self, weights=None):
         super().__init__()
-        # 1. 搬出大神练好的 ResNet34 喵！
-        resnet = models.resnet34(pretrained=False)
-        resnet.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=1, padding=3, bias=False)
-        # 2. 把零件按层级拆开，方便做“跳跃连接”喵
-        self.first_layer = nn.Sequential(resnet.conv1, resnet.bn1, resnet.relu) 
-        self.pool = resnet.maxpool
-        self.layer1 = resnet.layer1  # 对应第一层特征
-        self.layer2 = resnet.layer2  # 对应第二层特征
-        self.layer3 = resnet.layer3  # 对应第三层特征
-        self.layer4 = resnet.layer4  # 底部 Bottleneck 喵！
+
+        resnet34 = models.resnet34(weights=None)
+        resnet34.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=1, padding=3, bias=False)
+
+        self.stage0 = nn.Sequential(resnet34.conv1, resnet34.bn1, resnet34.relu) 
+        self.pool = resnet34.maxpool
+        #下面分开写是因为每一层都要做备份
+        self.stage1 = resnet34.layer1  
+        self.stage2 = resnet34.layer2  
+        self.stage3 = resnet34.layer3  
+        self.stage4 = resnet34.layer4  # 底部 Bottleneck 
+        
+        #CBAM 空间通道混合注意力
         self.cbam64 = CBAM(64)
         self.cbam128 = CBAM(128)
         self.cbam256 = CBAM(256)
         self.cbam512 = CBAM(512)
 
     def forward(self, x):
-        # 每一层算完都要留个“备份”，传给右边的 Decoder 喵
         
-        x0 = self.first_layer(x) # 64通道
-        x1 = self.layer1(self.pool(x0)) # 64通道
+        x0 = self.stage0(x) # 64通道
+        x1 = self.stage1(self.pool(x0)) # 64通道
         x1 = self.cbam64(x1)
-        x2 = self.layer2(x1) # 128通道
+        x2 = self.stage2(x1) # 128通道
         x2 = self.cbam128(x2)
-        x3 = self.layer3(x2) # 256通道
+        x3 = self.stage3(x2) # 256通道
         x3 = self.cbam256(x3)
-        x4 = self.layer4(x3) # 512通道 (最底层)\
+        x4 = self.stage4(x3) # 512通道 (最底层)\
         x4 = self.cbam512(x4)
         
-        return [x0, x1, x2, x3, x4]
+        return [x0, x1, x2, x3, x4]#做备份，传给右边的 Decoder 喵
