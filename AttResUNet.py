@@ -8,7 +8,7 @@ class AttResUNet(nn.Module):
     def __init__(self, in_channels=1, out_channels=1):
         super().__init__()
         # 1. 直接使用你封装好的带 CBAM 的 Encoder
-        self.encoder = Res34Block(pretrained=False) # 内部已处理 stride=1 和 1通道输入
+        self.encoder = Res34Block() # 内部已处理 stride=1 和 1通道输入
         
         # 2. 解码器部分 - 必须有 4 个阶段才能对应 x4, x3, x2, x1, x0
         self.dec4 = DecoderBlock(512, 256) # 处理 x4 -> x3
