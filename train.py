@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F  # 修正：必须导入 F 才能使用 interpolate
+import torch.nn.functional as F
 import os
 from torch.utils.data import DataLoader
 from MyDataset import MyDataset
@@ -21,7 +21,7 @@ class SystemValidator:
 
     def _fail(self, msg):
         """报错并强行退出"""
-        logger.error( f"环境报错: {msg}")
+        logger.error(f"环境报错: {msg}")
         sys.exit(1)
 
     def check_env(self, data_root, save_path):
@@ -51,37 +51,86 @@ class SystemValidator:
         logger.info("[SUCCESS] 检查通过，环境就绪！")
         logger.info("="*40 + "\n")
 SystemValidator().check_env(config["data_root"], config["save_path"])
-        
 
 
 # ==========================================
 # 1. 训练流程 (含数据集划分与自动验证)
 # ==========================================
-class DiceLoss(nn.Module):#DiceLoss损失函数
+class DiceLoss(nn.Module):
     def __init__(self, smooth=1e-6):
         super().__init__()
         self.smooth = smooth
 
     def forward(self, pred, target):
-        # 确保预测值在 0-1 之间（如果模型末尾没加 Sigmoid 就加上喵）
-        # pred = torch.sigmoid(pred) 
-        
         pred = pred.view(-1)
         target = target.view(-1)
         
         intersection = (pred * target).sum()
         dice = (2. * intersection + self.smooth) / (pred.sum() + target.sum() + self.smooth)
         
-        return 1 - dice # 我们要最小化这个值，所以用 1 减去它喵
+        return 1 - dice
+
+
+# ==========================================
+# 新增：计算 F1 Score 和 IoU 的函数
+# ==========================================
+def get_f1_score(pred, target, threshold=0.5):
+    """
+    计算二分类 F1 Score
+    pred: 模型输出的概率图 (B,1,H,W) 或 (B,H,W)，取值 [0,1]
+    target: 真实标签 (B,1,H,W) 或 (B,H,W)，取值 {0,1}
+    threshold: 二值化阈值
+    """
+    # 确保维度一致
+    if pred.dim() == 4:
+        pred = pred.squeeze(1)
+    if target.dim() == 4:
+        target = target.squeeze(1)
     
+    # 二值化
+    pred_bin = (pred > threshold).float()
+    target_bin = target.float()
     
-viz = Visualizer(log_dir=os.path.join(config["save_path"],"tf_logs"))#实例化Tensorboard记录器
+    # 计算混淆矩阵元素
+    tp = (pred_bin * target_bin).sum().item()
+    fp = (pred_bin * (1 - target_bin)).sum().item()
+    fn = ((1 - pred_bin) * target_bin).sum().item()
+    
+    # 防止除零
+    precision = tp / (tp + fp + 1e-7)
+    recall = tp / (tp + fn + 1e-7)
+    f1 = 2 * precision * recall / (precision + recall + 1e-7)
+    
+    return f1
+
+def get_iou(pred, target, threshold=0.5):
+    """
+    计算二分类 IoU (Jaccard Index)
+    pred: 模型输出的概率图 (B,1,H,W) 或 (B,H,W)，取值 [0,1]
+    target: 真实标签 (B,1,H,W) 或 (B,H,W)，取值 {0,1}
+    threshold: 二值化阈值
+    """
+    if pred.dim() == 4:
+        pred = pred.squeeze(1)
+    if target.dim() == 4:
+        target = target.squeeze(1)
+    
+    pred_bin = (pred > threshold).float()
+    target_bin = target.float()
+    
+    intersection = (pred_bin * target_bin).sum().item()
+    union = (pred_bin + target_bin).sum().item() - intersection  # 并集 = 正样本总数 - 交集
+    
+    iou = intersection / (union + 1e-7)
+    return iou
+
+viz = Visualizer(log_dir=os.path.join(config["save_path"], "tf-logs"))  # 实例化Tensorboard记录器
 
 # 1. 实例化并划分数据集 (8:1:1)
 full_dataset = MyDataset(data_root=config["data_root"])
 
-train_size = int(0.8 * len(full_dataset))
-val_size = int(0.1 * len(full_dataset))
+train_size = int(0.7 * len(full_dataset))
+val_size = int(0.2 * len(full_dataset))
 test_size = len(full_dataset) - train_size - val_size
 
 train_dataset, val_dataset, test_dataset = random_split(
@@ -104,16 +153,13 @@ model = AttResUNet(in_channels=1, out_channels=1).to(device)
 criterion_bce = nn.BCELoss()
 criterion_dice = DiceLoss()
 
-optimizer = torch.optim.Adam(model.parameters(), lr=config["lr"])
-# --- 新增：余弦退火策略 ---
-# T_max 通常设置为总的 epoch 数，表示学习率从最大降到最小所需的周期
-scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=config["num_epochs"], eta_min=1e-6)
-# eta_min 是学习率能降到的最小值，建议设置一个较小的数（如 1e-6）而不是 0
+
+optimizer = torch.optim.AdamW(model.parameters(), lr=config["lr"])
+scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=config["num_epochs"], eta_min=1e-7)
 
 # 用于保存最佳模型的变量
 best_val_loss = float('inf')
 best_val_dice = 0.0
-
 
 logger.info("开始训练...")
 
@@ -127,10 +173,11 @@ for epoch in range(config["num_epochs"]):
         images, masks = images.to(device), masks.to(device)
         
         # 前向传播
+        
         outputs = model(images)
         loss_bce = criterion_bce(outputs, masks)
         loss_dice = criterion_dice(outputs, masks)
-        loss = 0.5 * loss_bce + 1.5 * loss_dice
+        loss = 0.6*loss_bce + 1.2*loss_dice
         
         # 反向传播与优化
         optimizer.zero_grad()
@@ -139,64 +186,77 @@ for epoch in range(config["num_epochs"]):
         
         train_loss += loss.item()
         
-        
-        
         if step % 5 == 0:
             logger.info(f"Epoch [{epoch+1}/{config['num_epochs']}], Step [{step}/{len(train_loader)}], Train Loss: {loss.item():.4f}")
     
-    
-    
     avg_train_loss = train_loss / len(train_loader)
-    
-    
-    logger.info(f'Current Train Epoch :  Avg LOSS:{avg_train_loss }')
-    
+    logger.info(f'Current Train Epoch :  Avg LOSS:{avg_train_loss}')
     
     # --- 验证阶段 ---
-    model.eval() # 切换为评估模式
+    model.eval()
     epoch_val_loss = 0.0
     epoch_val_dice = 0.0
+    epoch_val_f1 = 0.0      # 新增：累计 F1
+    epoch_val_iou = 0.0      # 新增：累计 IoU
     
-    
-    with torch.no_grad(): # 验证时不计算梯度，节省内存和时间
+    with torch.no_grad():
         for images, masks in val_loader:
             images, masks = images.to(device), masks.to(device)
             outputs = model(images)
+            
+            # 损失
             v_bce_loss = criterion_bce(outputs, masks)
             v_dice_loss = criterion_dice(outputs, masks)
             v_loss = 0.5 * v_bce_loss + 1.5 * v_dice_loss
             epoch_val_loss += v_loss.item()
-            epoch_val_dice += get_dice(outputs, masks)
+            
+            # 指标
+            epoch_val_dice += get_dice(outputs, masks)                # 原有 Dice（默认阈值 0.5? 需查看 get_dice 实现）
+            epoch_val_f1 += get_f1_score(outputs, masks, threshold=0.5)
+            epoch_val_iou += get_iou(outputs, masks, threshold=0.5)
+    
     avg_val_loss = epoch_val_loss / len(val_loader)
     avg_val_dice = epoch_val_dice / len(val_loader)
-    # 可以在日志里多打印两个版本的 Dice 看看喵
+    avg_val_f1 = epoch_val_f1 / len(val_loader)
+    avg_val_iou = epoch_val_iou / len(val_loader)
+    
+    # 打印多个阈值下的 Dice（原有）
     logger.info(f"Threshold 0.4 Dice: {get_dice(outputs, masks, threshold=0.4):.4f}")
     logger.info(f"Threshold 0.5 Dice: {get_dice(outputs, masks, threshold=0.5):.4f}")
     logger.info(f"Threshold 0.6 Dice: {get_dice(outputs, masks, threshold=0.6):.4f}")
     logger.info(f"Threshold 0.7 Dice: {get_dice(outputs, masks, threshold=0.7):.4f}")
     logger.info(f"Threshold 0.8 Dice: {get_dice(outputs, masks, threshold=0.8):.4f}")
     logger.info(f"Threshold 0.9 Dice: {get_dice(outputs, masks, threshold=0.9):.4f}")
-    # --- 新增：更新学习率 ---
-    # 获取当前学习率用于打印查看
+    
+    # 新增：打印 F1 和 IoU
+    logger.info(f"F1 Score (th=0.5): {avg_val_f1:.4f}")
+    logger.info(f"IoU (th=0.5): {avg_val_iou:.4f}")
+    
+    # 当前学习率
     current_lr = optimizer.param_groups[0]['lr']
     logger.info(f"Current Learning Rate: {current_lr:.6f}")
-
     
-    viz.log_scalars("Loss", {"train": avg_train_loss, "val": avg_val_loss}, epoch)#Tensorboard写入LOSS
-    viz.log_scalars("Dice", {"val": avg_val_dice}, epoch)# 记录 Dice 指标喵
-    logger.info(f"===> Epoch [{epoch+1}/{config['num_epochs']}] Avg Train Loss: {avg_train_loss:.4f}  | Avg Val Loss: {avg_val_loss:.4f} | Avg Val Dice: {avg_val_dice:.4f}")
-    # --- 保存性能最好的模型 ---
+    # TensorBoard 记录
+    viz.log_scalars("Loss", {"train": avg_train_loss, "val": avg_val_loss}, epoch)
+    viz.log_scalars("Dice", {"val": avg_val_dice}, epoch)
+    viz.log_scalars("F1", {"val": avg_val_f1}, epoch)      # 新增
+    viz.log_scalars("IoU", {"val": avg_val_iou}, epoch)    # 新增
+    
+    logger.info(f"===> Epoch [{epoch+1}/{config['num_epochs']}] Avg Train Loss: {avg_train_loss:.4f}  | Avg Val Loss: {avg_val_loss:.4f} | Avg Val Dice: {avg_val_dice:.4f} | F1: {avg_val_f1:.4f} | IoU: {avg_val_iou:.4f}")
+    
+    # 保存性能最好的模型（基于 Dice）
     if avg_val_dice > best_val_dice:
         best_val_dice = avg_val_dice
         best_val_loss = avg_val_loss
-        checkpoint={
-            "state_dict":model.state_dict(),
-            "config":config
-        }#打包模型参数以及初始条件
-        torch.save(checkpoint, "att_res_unet_best.pth")#一并封装保存
+        checkpoint = {
+            "state_dict": model.state_dict(),
+            "config": config
+        }
+        torch.save(checkpoint, "att_res_unet_best.pth")
         logger.info(f"发现更优验证集表现，模型已更新保存~")
+    
     scheduler.step()
     logger.info("-" * 30)
 
-viz.close()#关闭writer
-logger.info(f"训练完成！最优验证集 Loss 为: {best_val_loss:.4f}, 最优验证集Dice为：{best_val_dice:.4f}")
+viz.close()
+logger.info(f"训练完成！最优验证集 Loss 为: {best_val_loss:.4f}, 最优验证集 Dice 为：{best_val_dice:.4f}")
