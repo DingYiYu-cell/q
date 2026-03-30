@@ -74,7 +74,7 @@ class MyDataset(Dataset):
         mask_img = self.resize(mask_img)
         # 3. 转为 numpy 矩阵进行二值化处理
         mask_np = np.array(mask_img)
-        # 4. 只要有颜色(红色)的地方全部变成 1.0，其余背景 0.0 喵
+        # 4. 只要有颜色(红色)的地方全部变成 1.0，其余背景 0.0 
         mask_binary = (mask_np > 0).astype(np.float32)
         
         # 5. 转回 Tensor 并增加通道维度 (1, H, W)

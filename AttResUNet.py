@@ -5,9 +5,9 @@ from Res34Block import Res34Block # 确保这个文件里有你改好的 stride=
 from DecoderBlock import DecoderBlock 
 
 class AttResUNet(nn.Module):
-    def __init__(self, in_channels=1, out_channels=1):
+    def __init__(self, in_channels=1, out_channels=1):#输入单通道，最后返回也是单通道
         super().__init__()
-        # 1. 直接使用你封装好的带 CBAM 的 Encoder
+        # 1. 编码器部分
         self.encoder = Res34Block() # 内部已处理 stride=1 和 1通道输入
         
         # 2. 解码器部分 - 必须有 4 个阶段才能对应 x4, x3, x2, x1, x0
@@ -22,7 +22,7 @@ class AttResUNet(nn.Module):
     def forward(self, x):
         # --- Encoder 阶段 ---
         # 拿到你在 Res34Block 里准备好的 5 个特征备份
-        # x0:224, x1:112, x2:56, x3:28, x4:14
+        # x0:224, x1:112, x2:56, x3:28, x4:14A
         x0, x1, x2, x3, x4 = self.encoder(x) 
         
         # --- Decoder 阶段 ---
@@ -35,5 +35,7 @@ class AttResUNet(nn.Module):
         out = self.final_conv(d1)
         
         # 重点：只返回一个 Tensor，并且在这里做 Sigmoid
-        # 确保没有多余的逗号喵！
+        # 确保没有多余的逗号
         return torch.sigmoid(out)
+        #此处用sigmoid，二分类单通道适用
+        #而softmax，适用于多分类多通道
