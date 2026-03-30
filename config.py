@@ -12,7 +12,7 @@ config= {
     "data_root": 'E:/Desktop/train_outputpro',
     "batch":20,
     "num_epochs":50,
-    "lr":1e-4,
+    #"lr":1e-4, 交给optuna管理
     "global_seed":42,
     "save_path": 'E:/Desktop/save_path',
     }#初始条件写入字典
