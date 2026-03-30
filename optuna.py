@@ -1,4 +1,5 @@
 import optuna
+import os
 import wandb
 import torch
 import torch.nn as nn
@@ -21,6 +22,7 @@ def objective(trial):
     # ==========================================
     # B. 初始化 WandB (每个 Trial 一个 Run)
     # ==========================================
+    os.environ["WANDB_MODE"] = "offline"
     run = wandb.init(
         project="Crack_Detection_Optuna",
         config={
