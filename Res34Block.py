@@ -21,7 +21,8 @@ class Res34Block(nn.Module):
         self.cbam128 = CBAM(128)
         self.cbam256 = CBAM(256)
         self.cbam512 = CBAM(512)
-
+        
+        self.drop = nn.Dropout2d(p=0.2)#!随机失活
     def forward(self, x):
         
         x0 = self.stage0(x) # 64通道
@@ -33,5 +34,6 @@ class Res34Block(nn.Module):
         x3 = self.cbam256(x3)
         x4 = self.stage4(x3) # 512通道 (最底层)\
         x4 = self.cbam512(x4)
+        x4 = self.drop(x4)
         
         return [x0, x1, x2, x3, x4]#做备份，传给右边的 Decoder 喵
