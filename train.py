@@ -64,24 +64,25 @@ def get_metrics(pred, target, threshold=0.5):
     return f1, iou
 
 # ==========================================
+# 3. 数据准备
+# ==========================================
+viz = Visualizer(log_dir=os.path.join(config["save_path"], "tf-logs"))
+full_dataset = MyDataset(data_root=config["data_root"])
+
+#!切分数据集
+train_size = int(0.7 * len(full_dataset))
+val_size = int(0.2 * len(full_dataset))
+test_size = len(full_dataset) - train_size - val_size
+
+train_dataset, val_dataset, test_dataset = random_split(
+    full_dataset, [train_size, val_size, test_size],
+    generator=torch.Generator().manual_seed(config["global_seed"])
+)
+# ==========================================
 # 4. 训练入口函数封装
 # ==========================================
 def run_training(test_params):
-    # ==========================================
-    # 3. 数据准备
-    # ==========================================
-    viz = Visualizer(log_dir=os.path.join(config["save_path"], "tf-logs"))
-    full_dataset = MyDataset(data_root=config["data_root"])
-
-    #!切分数据集
-    train_size = int(0.7 * len(full_dataset))
-    val_size = int(0.2 * len(full_dataset))
-    test_size = len(full_dataset) - train_size - val_size
-
-    train_dataset, val_dataset, test_dataset = random_split(
-        full_dataset, [train_size, val_size, test_size],
-        generator=torch.Generator().manual_seed(config["global_seed"])
-    )
+    
 
     # 使用 Optuna 建议的 batch_size
     train_loader = DataLoader(train_dataset, batch_size=test_params['batch_size'], shuffle=True)

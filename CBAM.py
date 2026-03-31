@@ -22,11 +22,11 @@ class CBAM(nn.Module):
     def forward(self, x):
         #通道注意力（并行计算）
         avg_cout = self.shared_conv(nn.AdaptiveAvgPool2d(1)(x))
-        max_cout = self.shared_conv(nn.AdaptiveMaxPool2d(1)(2))
+        max_cout = self.shared_conv(nn.AdaptiveMaxPool2d(1)(x))
         ca_weight = self.sigmoid(avg_cout + max_cout)
         x = x * ca_weight
         avg_sout = torch.mean(x, dim=1, keepdim=True)
-        max_sout = torch.max(x, dim=1, keepdim=True)
+        max_sout = torch.max(x, dim=1, keepdim=True)[0]
         sa_weight = self.sa(torch.cat([avg_sout, max_sout], dim=1))#拼接两个权重通道
         return x * sa_weight
         
