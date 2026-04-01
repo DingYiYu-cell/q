@@ -4,6 +4,7 @@ import datetime
 import os
 import torch
 
+total_trials = 150
 def objective(trial):
     test_params = {
         'opt_class': trial.suggest_categorical('opt_class', ['AdamW','RMSprop','SGD','RAdam','NAdam']),
@@ -13,12 +14,13 @@ def objective(trial):
         'alpha': trial.suggest_float('alpha', 0.5, 1.5),
         'beta': trial.suggest_float('beta', 0.5, 1.5),
         'trial_num': trial.number,
+        'total_trials':total_trials,
     }
     return train.run_training(test_params)
 
 if __name__ == "__main__":
     study = optuna.create_study(direction="maximize")
-    study.optimize(objective, n_trials=1)
+    study.optimize(objective, n_trials=total_trials)
     
 
     best_trial_num = study.best_trial.number
