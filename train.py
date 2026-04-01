@@ -98,7 +98,19 @@ def run_training(test_params):
     criterion_dice = DiceLoss()
 
     # 使用 Optuna 建议的参数
-    optimizer = torch.optim.AdamW(model.parameters(), lr=test_params['lr'])
+    #!优化器由optuna建议
+    optimizer = test_params['opt_class']
+    if optimizer == 'AdamW':
+        optimizer = torch.optim.AdamW(model.parameters(), lr=test_params['lr'])
+    elif optimizer == 'RMSprop':
+        optimizer = torch.optim.RMSprop(model.parameters(), lr=test_params['lr'])
+    elif optimizer == 'SGD':
+        optimizer = torch.optim.SGD(model.parameters(), lr=test_params['lr'], momentum=0.9)
+    elif optimizer == 'RAdam':
+        optimizer = torch.optim.RAdam(model.parameters(), lr=test_params['lr'])  
+    elif optimizer == 'NAdam':
+        optimizer = torch.optim.NAdam(model.parameters(), lr=test_params['lr'])   
+        
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=test_params['cos_maxt'], eta_min=1e-7)
 
     best_val_dice = 0.0
@@ -118,10 +130,10 @@ def run_training(test_params):
             
             outputs = model(images)
             
-            # 复合损失：0.8 Focal + 1.2 Dice
+            # 复合损失
             l_f = criterion_focal(outputs, masks)
             l_d = criterion_dice(outputs, masks)
-            loss = 0.8 * l_f + 1.2 * l_d
+            loss = test_params['alpha'] * l_f + test_params['beta'] * l_d
             
             optimizer.zero_grad()
             loss.backward()
