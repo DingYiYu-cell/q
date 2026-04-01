@@ -11,8 +11,8 @@ def get_logger(name="Project"):
     if not logger.handlers:
         # --- 1. 设置屏幕输出（带颜色） ---
         color_formatter = colorlog.ColoredFormatter(
-            "%(log_color)s%(levelname)-8s%(reset)s | %(blue)s%(message)s",
-            log_colors={'DEBUG': 'cyan', 'INFO': 'green', 'WARNING': 'yellow', 'ERROR': 'red', 'CRITICAL': 'red,bg_white'}
+            "%(log_color)s%(levelname)-8s%(reset)s | %(log_color)s%(message)s",
+            log_colors={'DEBUG': 'yellow', 'INFO': 'green', 'WARNING': 'yellow', 'ERROR': 'red', 'CRITICAL': 'red,bg_white'}
         )
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(color_formatter)
