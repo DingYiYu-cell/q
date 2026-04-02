@@ -7,7 +7,7 @@ import torch
 total_trials = 150
 def objective(trial):
     test_params = {
-        'opt_class': trial.suggest_categorical('opt_class', ['AdamW','RMSprop','SGD','RAdam','NAdam']),
+        'opt_class': trial.suggest_categorical('opt_class', ['AdamW','RMSprop','SGD']),
         'lr': trial.suggest_float('lr', 1e-5, 1e-3, log=True),
         'batch_size': trial.suggest_int('batch', 10, 100, log=True),
         'cos_maxt': trial.suggest_int('cos_maxt', 5, 10),
