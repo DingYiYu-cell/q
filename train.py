@@ -117,7 +117,7 @@ def run_training(test_params, trial=None):
 
             # 检查 Optuna 是否决定放弃这个 Trial
             if trial.should_prune():
-                logger.warning(f"*****❗❗❗❗注意！！ Trial {test_params['trial_num']} 在 Epoch {epoch+1} 表现不佳，已被剪枝！！！******❗❗❗❗")
+                logger.warning(f"*****❗❗❗❗注意！！ Trial {test_params['trial_num']+1} 在 Epoch {epoch+1} 表现不佳，已被剪枝！！！******❗❗❗❗")
                 # 释放显存并抛出剪枝异常
                 del model
                 torch.cuda.empty_cache()
