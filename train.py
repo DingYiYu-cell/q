@@ -156,9 +156,9 @@ def run_training(test_params, trial=None):
             torch.save({"state_dict": trial_best_weights, "metrics": trial_best_metrics}, save_name)
             # 🚀 新增：突破纪录时导出 Origin 绘图专用的 CSV 文件
             
-            logger.debug(f"本轮结束！！！发现更优模型，保存为{save_name} | 指标保存为{csv_name}")
+            logger.debug(f"本轮结束！！！发现本参数组合的局内更优模型，保存为{save_name} | 指标保存为{csv_name}")
         else:
-            logger.debug(f"本轮结束！！！未发现更优模型[]...")
+            logger.debug(f"本轮结束！！！未发现本参数组合的局内更优模型...")
 
 
         
