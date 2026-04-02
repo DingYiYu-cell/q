@@ -127,7 +127,7 @@ def run_training(test_params):
     # --- 全局最强保存 ---
     if trial_best_score > global_best_score:
         global_best_score = trial_best_score
-        save_name = f"best_model_trial_{test_params['trial_num']}.pth"
+        save_name = f"model_trial_{test_params['trial_num']}.pth"
         torch.save({"state_dict": trial_best_weights, "metrics": trial_best_metrics}, save_name)
         logger.debug(f"🔥 全場最強更新！保存为{save_name}.pth | Score: {global_best_score:.4f}")
         # 🚀 新增：突破纪录时导出 Origin 绘图专用的 CSV 文件

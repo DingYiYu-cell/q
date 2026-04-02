@@ -24,11 +24,11 @@ if __name__ == "__main__":
     
 
     best_trial_num = study.best_trial.number
-    best_model_name = f"best_model_trial_{best_trial_num}.pth"
+    best_model_name = f"model_trial_{best_trial_num}.pth"
 
     # 检查文件是否存在，防止中途夭折导致读取失败
     if not os.path.exists("best_model.pth"):
-        print("❌ 错误：没找到 best_model.pth，可能所有 Trial 都跑得太烂了或者中途崩了。")
+        print("❌ 错误：没找到 model.pth，可能所有 Trial 都跑得太烂了或者中途崩了。")
     else:
         # 修正拼写错误：map_vars -> map_location
         best_ckpt = torch.load("best_model.pth", map_location=torch.device('cpu'))
