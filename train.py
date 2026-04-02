@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import os
+import optuna
 import sys
 import csv
 import copy
@@ -53,14 +54,14 @@ val_size = int(0.2 * len(full_dataset))
 test_size = len(full_dataset) - train_size - val_size
 train_dataset, val_dataset, test_dataset = random_split(full_dataset, [train_size, val_size, test_size], generator=torch.Generator().manual_seed(config["global_seed"]))
 
-def run_training(test_params):
+def run_training(test_params, trial=None):
     best_dice = -float('inf')
     best_f1 = -float('inf')
     best_iou = -float('inf')
     global global_best_score
     
     # ✅ 1. 注入参数显示
-    logger.debug(f"第{test_params['trial_num']}个Trial | 开始训练任务 | 注入参数: {test_params}")
+    logger.debug(f"第{test_params['trial_num']+1}个Trial | 开始训练任务 | 注入参数: {test_params}")
     
     train_loader = DataLoader(train_dataset, batch_size=test_params['batch_size'], shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=test_params['batch_size'], shuffle=False)
@@ -89,7 +90,7 @@ def run_training(test_params):
             current_lr = optimizer.param_groups[0]['lr']
             if step % 5 == 0:
                 logger.info(
-                    f"Trial [{test_params['trial_num']}/{test_params['total_trials']}]  "
+                    f"Trial [{test_params['trial_num']+1}/{test_params['total_trials']}]  "
                     f"Epoch [{epoch+1}/{config['num_epochs']}] "
                     f"Step [{step}/{len(train_loader)}] | "
                     f"Loss: {loss.item():.4f} | "
@@ -109,7 +110,17 @@ def run_training(test_params):
         # --- 在 run_training 函数内的验证逻辑之后 ---
         avg_dice, avg_f1, avg_iou = sum_dice/len(val_loader), sum_f1/len(val_loader), sum_iou/len(val_loader)
         current_score = (avg_dice + avg_f1 + avg_iou) / 3
-        
+        if trial is not None:
+            # 向 Optuna 汇报当前 Epoch 的得分
+            trial.report(current_score, epoch)
+
+            # 检查 Optuna 是否决定放弃这个 Trial
+            if trial.should_prune():
+                logger.warning(f"*****❗❗❗❗注意！！ Trial {test_params['trial_num']} 在 Epoch {epoch+1} 表现不佳，已被剪枝！！！******❗❗❗❗")
+                # 释放显存并抛出剪枝异常
+                del model
+                torch.cuda.empty_cache()
+                raise optuna.exceptions.TrialPruned()
         # 🟢 关键修正：只有分数提高时，才更新用于保存的指标
         if current_score > trial_best_score:
             trial_best_score = current_score
