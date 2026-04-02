@@ -138,7 +138,9 @@ def run_training(test_params):
 
         # --- 保存 ---
         if avg_dice > best_dice or avg_f1>best_f1 or avg_iou>best_iou:
-            best_dice = avg_dice,best_f1 = avg_f1,best_iou = avg_iou
+            best_dice = avg_dice
+            best_f1 = avg_f1
+            best_iou = avg_iou
             save_name = f"model_trial_{test_params['trial_num']}.pth" 
             torch.save({"state_dict": trial_best_weights, "metrics": trial_best_metrics}, save_name)
             # 🚀 新增：突破纪录时导出 Origin 绘图专用的 CSV 文件
