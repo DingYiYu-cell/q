@@ -145,14 +145,14 @@ def run_training(test_params, trial=None):
         logger.info(f"One Epoch 結束===> Epoch {epoch+1}: Train Loss: {total_train_loss/len(train_loader):.4f} | Val Dice: {avg_dice:.4f} | F1: {avg_f1:.4f} | IoU: {avg_iou:.4f}<===")
         
         scheduler.step()
-        csv_name = f"origin_data_trial_{test_params['trial_num']}.csv"
+        csv_name = f"origin_data_trial_{test_params['trial_num']+1}.csv"
 
         # --- 保存 ---
         if avg_dice > best_dice or avg_f1>best_f1 or avg_iou>best_iou:
             best_dice = avg_dice
             best_f1 = avg_f1
             best_iou = avg_iou
-            save_name = f"model_trial_{test_params['trial_num']}.pth" 
+            save_name = f"model_trial_{test_params['trial_num']+1}.pth" 
             torch.save({"state_dict": trial_best_weights, "metrics": trial_best_metrics}, save_name)
             # 🚀 新增：突破纪录时导出 Origin 绘图专用的 CSV 文件
             

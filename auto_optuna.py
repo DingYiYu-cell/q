@@ -31,8 +31,8 @@ if __name__ == "__main__":
     
 
     best_trial_num = study.best_trial.number
-    best_model_name = f"model_trial_{best_trial_num}.pth"
-    csv_name = f"origin_data_trial_{best_trial_num}.csv"
+    best_model_name = f"model_trial_{best_trial_num+1}.pth"
+    csv_name = f"origin_data_trial_{best_trial_num+1}.csv"
     # 检查文件是否存在，防止中途夭折导致读取失败
     if not os.path.exists(best_model_name) and os.path.exist(csv_name):
         print("❌ 错误：没找到 best_model.pth，可能所有 Trial 都跑得太烂了或者中途崩了。")
