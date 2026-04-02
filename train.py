@@ -79,6 +79,7 @@ def run_training(test_params, trial=None):
         # --- 训练阶段 ---
         model.train()
         total_train_loss = 0.0
+        total_val_loss = 0.0
         for step, (images, masks) in enumerate(train_loader):
             images, masks = images.to(device), masks.to(device)
             out = model(images)
@@ -106,7 +107,7 @@ def run_training(test_params, trial=None):
                 out = model(images)
                 sum_dice += get_dice(out, masks)
                 f1, iou = get_metrics(out, masks); sum_f1 += f1; sum_iou += iou
-        
+                total_val_loss += loss.item()
         # --- 在 run_training 函数内的验证逻辑之后 ---
         avg_dice, avg_f1, avg_iou = sum_dice/len(val_loader), sum_f1/len(val_loader), sum_iou/len(val_loader)
         current_score = (avg_dice + avg_f1 + avg_iou) / 3
@@ -135,6 +136,7 @@ def run_training(test_params, trial=None):
         trial_history.append({
             "epoch": epoch + 1,
             "train_loss": total_train_loss / len(train_loader),
+            "val_loss": total_val_loss / len(val_loader),
             "val_dice": avg_dice,
             "val_f1": avg_f1,
             "val_iou": avg_iou,
@@ -142,7 +144,7 @@ def run_training(test_params, trial=None):
         })
 
         # ✅ 3. Epoch 总结打印
-        logger.info(f"One Epoch 結束===> Epoch {epoch+1}: Train Loss: {total_train_loss/len(train_loader):.4f} | Val Dice: {avg_dice:.4f} | F1: {avg_f1:.4f} | IoU: {avg_iou:.4f}<===")
+        logger.info(f"One Epoch 結束===> Epoch {epoch+1}: Train Loss: {total_train_loss/len(train_loader):.4f}  Val Loss: {total_val_loss/len(val_loader):.4f} | Val Dice: {avg_dice:.4f} | F1: {avg_f1:.4f} | IoU: {avg_iou:.4f}<===")
         
         scheduler.step()
         csv_name = f"origin_data_trial_{test_params['trial_num']+1}.csv"
