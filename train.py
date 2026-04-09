@@ -13,7 +13,7 @@ from config import config
 from utils import logger
 from visualizer import Visualizer, get_dice
 
-# 全局唯一守门员
+#初始化全局最优分数
 global_best_score = -float('inf')
 
 class FocalLoss(nn.Module):
