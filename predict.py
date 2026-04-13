@@ -7,7 +7,7 @@ from AttResUNet import AttResUNet
 def predict():
     # --- 1. 参数配置 ---
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    weight_path = "model_trial_33.pth"  # 替换为你的权重文件名
+    weight_path = "best_model_trial_16.pth"  # 替换为你的权重文件名
     img_path = "test2.png"      # 替换为你要测试的图片路径
     output_path = "result2.png"       # 输出结果路径
     input_size = (224, 224)         # 保持与训练时的输入尺寸一致
